@@ -1,7 +1,7 @@
 {
   "team": "OKC",
   "season_label": "2025-26",
-  "generated_at_utc": "2026-04-23T00:00:00Z",
+  "generated_at_utc": "2026-04-23T21:21:07.319138Z",
   "playoff_placeholders": {
     "R2": null,
     "WCF": null,
@@ -22,7 +22,12 @@
       "result": "W",
       "thunder_score": 118,
       "opponent_score": 106,
-      "links": {},
+      "links": {
+        "nba_game": "https://www.nba.com/game/0042500121",
+        "nba_box": "https://www.nba.com/game/0042500121/box-score",
+        "nba_pbp": "https://www.nba.com/game/0042500121/play-by-play",
+        "courtsketch": "https://courtsketch.com/live_game/42500121"
+      },
       "library": {
         "tv": "TNT",
         "line": null,
@@ -33,8 +38,16 @@
         "matchup_matrix_srcset": null,
         "okc_injuries": [],
         "opp_injuries": [],
-        "okc_likely_starters": ["Shai Gilgeous-Alexander", "Luguentz Dort", "Jalen Williams", "Chet Holmgren", "Isaiah Hartenstein"],
-        "opp_likely_starters": ["TBD"]
+        "okc_likely_starters": [
+          "Shai Gilgeous-Alexander",
+          "Luguentz Dort",
+          "Jalen Williams",
+          "Chet Holmgren",
+          "Isaiah Hartenstein"
+        ],
+        "opp_likely_starters": [
+          "TBD"
+        ]
       },
       "assets": {
         "game_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/0042500121.png",
@@ -67,7 +80,12 @@
       "result": null,
       "thunder_score": null,
       "opponent_score": null,
-      "links": {},
+      "links": {
+        "nba_game": "https://www.nba.com/game/0042500122",
+        "nba_box": "https://www.nba.com/game/0042500122/box-score",
+        "nba_pbp": "https://www.nba.com/game/0042500122/play-by-play",
+        "courtsketch": "https://courtsketch.com/live_game/42500122"
+      },
       "library": {
         "tv": "TNT",
         "line": null,
@@ -78,8 +96,16 @@
         "matchup_matrix_srcset": null,
         "okc_injuries": [],
         "opp_injuries": [],
-        "okc_likely_starters": ["Shai Gilgeous-Alexander", "Luguentz Dort", "Jalen Williams", "Chet Holmgren", "Isaiah Hartenstein"],
-        "opp_likely_starters": ["TBD"]
+        "okc_likely_starters": [
+          "Shai Gilgeous-Alexander",
+          "Luguentz Dort",
+          "Jalen Williams",
+          "Chet Holmgren",
+          "Isaiah Hartenstein"
+        ],
+        "opp_likely_starters": [
+          "TBD"
+        ]
       },
       "assets": {
         "game_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/0042500122.png",
