@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "ghost_posts": {},
+  "podcast_seen_keys": [],
+  "bolts_seen_urls": [],
+  "lanes": {
+    "pregame": {},
+    "scoreboard": {},
+    "dayafter": {},
+    "podcast": {},
+    "bolts": {
+      "active": false
+    }
+  },
+  "runs": [],
+  "last_successful_run_utc": null,
+  "last_run_summary": {}
+}
