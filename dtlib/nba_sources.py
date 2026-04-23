@@ -33,7 +33,8 @@ def refresh_todays_status(games: List[Dict[str, Any]]) -> None:
         )
         r.raise_for_status()
         todays = r.json().get('scoreboard', {}).get('games', [])
-    except Exception:
+    except Exception as exc:
+        print(f'NBA scoreboard refresh skipped: {exc}')
         return
 
     by_id = {str(g.get('gameId')): g for g in todays}
@@ -59,7 +60,7 @@ def refresh_todays_status(games: List[Dict[str, Any]]) -> None:
 
         if game['status'] == 'final' and game['thunder_score'] is not None and game['opponent_score'] is not None:
             game['result'] = 'W' if game['thunder_score'] > game['opponent_score'] else 'L'
-        game['timestamps']['last_verified_utc'] = utcnow_iso()
+        game.setdefault('timestamps', {})['last_verified_utc'] = utcnow_iso()
 
 
 def compute_live_window(games: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -72,7 +73,7 @@ def compute_live_window(games: List[Dict[str, Any]]) -> Dict[str, Any]:
     dated.sort(key=lambda x: x[0])
 
     completed = [g for tip, g in dated if (g.get('status') == 'final' or (tip < now and g.get('result')))]
-    upcoming = [g for tip, g in dated if tip >= now - timedelta(hours=2)]
+    upcoming = [(tip, g) for tip, g in dated if tip >= now - timedelta(hours=2)]
 
     previous = completed[-1] if completed else None
     next_games = [g for _, g in upcoming[:7]]
