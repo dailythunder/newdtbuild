@@ -56,11 +56,11 @@
       "automation": {
         "pregame_slug": null,
         "scoreboard_slug": null,
-        "dayafter_slug": null,
+        "dayafter_slug": "day-after-0042500121-suns",
         "podcast_slug": null,
         "pregame_complete": false,
         "scoreboard_complete": false,
-        "dayafter_complete": false
+        "dayafter_complete": true
       },
       "timestamps": {
         "last_verified_utc": null
