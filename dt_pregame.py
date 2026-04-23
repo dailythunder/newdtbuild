@@ -43,8 +43,13 @@ def main() -> None:
         custom_excerpt=f"Pregame primer for Thunder vs. {opponent}",
         update_if_unpublished=True,
     )
+
+    if not ghost.is_real_post(post):
+        print('Pregame dry-run only; not mutating state.')
+        return
+
     game['automation']['pregame_slug'] = slug
-    data['content_state']['ghost_posts'][slug] = {'id': post.get('id'), 'lane': 'pregame', 'updated_utc': utcnow_iso()}
+    data['content_state'].setdefault('ghost_posts', {})[slug] = {'id': post.get('id'), 'lane': 'pregame', 'updated_utc': utcnow_iso()}
     save_all(data)
     print(f'Pregame upserted: {slug}')
 
