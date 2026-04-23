@@ -15,6 +15,11 @@
       "id": "dry-run",
       "lane": "dayafter",
       "updated_utc": "2026-04-23T21:42:51.202944Z"
+    },
+    "scoreboard-0042500121": {
+      "id": "dry-run",
+      "lane": "scoreboard",
+      "updated_utc": "2026-04-23T21:48:34.788592Z"
     }
   },
   "podcast_seen_keys": [
