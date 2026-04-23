@@ -1,0 +1,21 @@
+name: Update DT State
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: python dt_state_updater.py
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add season_state.json team_state.json stats_state.json content_state.json
+          git diff --cached --quiet || git commit -m "Update DT state"
+          git push

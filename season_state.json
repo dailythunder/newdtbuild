@@ -1,0 +1,102 @@
+{
+  "team": "OKC",
+  "season_label": "2025-26",
+  "generated_at_utc": "2026-04-23T00:00:00Z",
+  "playoff_placeholders": {
+    "R2": null,
+    "WCF": null,
+    "Finals": null
+  },
+  "games": [
+    {
+      "season_phase": "playoffs",
+      "series_round": "R1",
+      "game_number_in_series": 1,
+      "game_id": "0042500121",
+      "opponent": "Suns",
+      "opponent_full_name": "Phoenix Suns",
+      "home_away": "home",
+      "local_date": "2026-04-21",
+      "tipoff_utc": "2026-04-22T00:30:00Z",
+      "status": "final",
+      "result": "W",
+      "thunder_score": 118,
+      "opponent_score": 106,
+      "links": {},
+      "library": {
+        "tv": "TNT",
+        "line": null,
+        "location": "Oklahoma City",
+        "feature_image_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/0042500121.png",
+        "feature_image_srcset": null,
+        "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
+        "matchup_matrix_srcset": null,
+        "okc_injuries": [],
+        "opp_injuries": [],
+        "okc_likely_starters": ["Shai Gilgeous-Alexander", "Luguentz Dort", "Jalen Williams", "Chet Holmgren", "Isaiah Hartenstein"],
+        "opp_likely_starters": ["TBD"]
+      },
+      "assets": {
+        "game_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/0042500121.png",
+        "scoreboard_image": null
+      },
+      "automation": {
+        "pregame_slug": null,
+        "scoreboard_slug": null,
+        "dayafter_slug": null,
+        "podcast_slug": null,
+        "pregame_complete": false,
+        "scoreboard_complete": false,
+        "dayafter_complete": false
+      },
+      "timestamps": {
+        "last_verified_utc": null
+      }
+    },
+    {
+      "season_phase": "playoffs",
+      "series_round": "R1",
+      "game_number_in_series": 2,
+      "game_id": "0042500122",
+      "opponent": "Suns",
+      "opponent_full_name": "Phoenix Suns",
+      "home_away": "home",
+      "local_date": "2026-04-23",
+      "tipoff_utc": "2026-04-24T00:30:00Z",
+      "status": "scheduled",
+      "result": null,
+      "thunder_score": null,
+      "opponent_score": null,
+      "links": {},
+      "library": {
+        "tv": "TNT",
+        "line": null,
+        "location": "Oklahoma City",
+        "feature_image_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/0042500122.png",
+        "feature_image_srcset": null,
+        "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
+        "matchup_matrix_srcset": null,
+        "okc_injuries": [],
+        "opp_injuries": [],
+        "okc_likely_starters": ["Shai Gilgeous-Alexander", "Luguentz Dort", "Jalen Williams", "Chet Holmgren", "Isaiah Hartenstein"],
+        "opp_likely_starters": ["TBD"]
+      },
+      "assets": {
+        "game_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/0042500122.png",
+        "scoreboard_image": null
+      },
+      "automation": {
+        "pregame_slug": null,
+        "scoreboard_slug": null,
+        "dayafter_slug": null,
+        "podcast_slug": null,
+        "pregame_complete": false,
+        "scoreboard_complete": false,
+        "dayafter_complete": false
+      },
+      "timestamps": {
+        "last_verified_utc": null
+      }
+    }
+  ]
+}
