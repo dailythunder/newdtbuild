@@ -11,6 +11,7 @@ RSS_URL = 'https://anchor.fm/s/11ffdfa0/podcast/rss'
 def main() -> None:
     data = load_all()
     seen = set(data['content_state'].get('podcast_seen_keys', []))
+
     try:
         feed = feedparser.parse(RSS_URL)
     except Exception as exc:
@@ -22,15 +23,21 @@ def main() -> None:
 
     entry = feed.entries[0]
     key = getattr(entry, 'id', None) or getattr(entry, 'link', None) or getattr(entry, 'title', None)
-    if not key or key in seen:
-        print('No new podcast episode.')
-        return
-
     title = getattr(entry, 'title', 'The Daily Thunder Podcast')
     summary = getattr(entry, 'summary', '')
     link = getattr(entry, 'link', RSS_URL)
     slug = slugify(f'podcast {title}')
-    post = GhostClient().upsert_draft(
+    ghost = GhostClient()
+
+    if key in seen:
+        if ghost.enabled and ghost.find_post_by_slug(slug):
+            print('No new podcast episode.')
+            return
+        print('Resetting stale podcast seen state.')
+        data['content_state']['podcast_seen_keys'] = [k for k in data['content_state'].get('podcast_seen_keys', []) if k != key]
+        seen.discard(key)
+
+    post = ghost.upsert_draft(
         title=title,
         slug=slug,
         html=build_podcast_html(title, summary, link),
@@ -38,8 +45,14 @@ def main() -> None:
         custom_excerpt='The Daily Thunder Podcast',
         update_if_unpublished=False,
     )
-    data['content_state']['podcast_seen_keys'].append(key)
-    data['content_state']['ghost_posts'][slug] = {'id': post.get('id'), 'lane': 'podcast', 'updated_utc': utcnow_iso()}
+
+    if not ghost.is_real_post(post):
+        print('Podcast dry-run only; not mutating seen state.')
+        save_all(data)
+        return
+
+    data['content_state'].setdefault('podcast_seen_keys', []).append(key)
+    data['content_state'].setdefault('ghost_posts', {})[slug] = {'id': post.get('id'), 'lane': 'podcast', 'updated_utc': utcnow_iso()}
     save_all(data)
     print(f'Podcast draft created: {slug}')
 

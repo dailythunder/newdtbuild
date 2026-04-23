@@ -17,6 +17,9 @@ class GhostClient:
     def enabled(self) -> bool:
         return bool(self.base_url and self.admin_key)
 
+    def is_real_post(self, post: Optional[Dict[str, Any]]) -> bool:
+        return bool(post and post.get('id') and post.get('id') != 'dry-run')
+
     def _token(self) -> str:
         key_id, secret = self.admin_key.split(':')
         iat = int(time.time())
@@ -27,7 +30,7 @@ class GhostClient:
         return {'Authorization': f'Ghost {self._token()}'}
 
     def find_post_by_slug(self, slug: str) -> Optional[Dict[str, Any]]:
-        if not self.enabled:
+        if not self.enabled or not slug:
             return None
         url = f'{self.base_url}/ghost/api/admin/posts/slug/{slug}/'
         r = requests.get(url, headers=self._headers(), timeout=30)
@@ -52,6 +55,7 @@ class GhostClient:
         update_if_unpublished: bool = True,
     ) -> Dict[str, Any]:
         if not self.enabled:
+            print(f'Ghost disabled; dry-run for slug={slug}')
             return {'id': 'dry-run', 'slug': slug, 'status': 'draft'}
 
         html = self._sanitize_html(html)
@@ -90,4 +94,5 @@ class GhostClient:
             print(f'Ghost {response.status_code} attempt={attempt} slug={slug}: {response.text}')
             if response.status_code != 400:
                 response.raise_for_status()
+
         raise requests.HTTPError(f'Ghost rejected payload for slug={slug}', response=response)
