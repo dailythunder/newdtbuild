@@ -19,7 +19,7 @@
     }
   },
   "runs": [],
-  "last_successful_run_utc": "2026-04-23T21:21:07.319129Z",
+  "last_successful_run_utc": "2026-04-23T21:33:44.680774Z",
   "last_run_summary": {
     "lane": "state_updater",
     "previous_game_id": "0042500121",
