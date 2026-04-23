@@ -64,16 +64,24 @@ def refresh_todays_status(games: List[Dict[str, Any]]) -> None:
 
 def compute_live_window(games: List[Dict[str, Any]]) -> Dict[str, Any]:
     now = utcnow()
-    dated = []
+    dated: List[Dict[str, Any]] = []
     for g in games:
         tip = parse_iso(g.get('tipoff_utc'))
         if tip:
-            dated.append((tip, g))
-    dated.sort(key=lambda x: x[0])
+            dated.append({'tipoff': tip, 'game': g})
+    dated.sort(key=lambda x: x['tipoff'])
 
-    completed = [g for tip, g in dated if (g.get('status') == 'final' or (tip < now and g.get('result')))]
-    upcoming = [g for tip, g in dated if tip >= now - timedelta(hours=2)]
+    completed = [
+        item['game']
+        for item in dated
+        if item['game'].get('status') == 'final' or (item['tipoff'] < now and item['game'].get('result'))
+    ]
+    upcoming = [item['game'] for item in dated if item['tipoff'] >= now - timedelta(hours=2)]
 
     previous = completed[-1] if completed else None
-    next_games = [g for _, g in upcoming[:7]]
-    return {'previous_game': previous, 'next_games': next_games}
+    next_games = upcoming[:7]
+    return {
+        'generated_at_utc': utcnow_iso(),
+        'previous_game': previous,
+        'next_games': next_games,
+    }

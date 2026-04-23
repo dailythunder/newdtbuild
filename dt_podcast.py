@@ -16,6 +16,13 @@ def main() -> None:
     except Exception as exc:
         print(f'Podcast feed failed: {exc}')
         return
+    if getattr(feed, 'bozo', False):
+        print(f"Podcast feed parse warning: {getattr(feed, 'bozo_exception', 'unknown parse failure')}")
+        return
+    status = getattr(feed, 'status', None)
+    if status and int(status) >= 400:
+        print(f'Podcast feed HTTP status: {status}')
+        return
     if not feed.entries:
         print('No podcast entries found.')
         return
