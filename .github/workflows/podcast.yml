@@ -15,21 +15,29 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+
       - run: pip install -r requirements.txt
+
       - run: python dt_podcast.py
         env:
           GHOST_URL: ${{ secrets.GHOST_URL }}
           GHOST_ADMIN_KEY: ${{ secrets.GHOST_ADMIN_KEY }}
-       - run: |
+
+      - name: Commit podcast state changes
+        run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+
+          git status --short
 
           git add content_state.json season_state.json team_state.json stats_state.json
 
