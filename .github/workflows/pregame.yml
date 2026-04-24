@@ -2,8 +2,18 @@ name: DT Pregame
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "2,17,32,47 * * * *"
   workflow_dispatch:
+    inputs:
+      target_game_id:
+        description: "Optional game_id to target"
+        required: false
+        type: string
+      force_demo:
+        description: "Bypass normal time gating"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -27,10 +37,13 @@ jobs:
         env:
           GHOST_URL: ${{ secrets.GHOST_URL }}
           GHOST_ADMIN_KEY: ${{ secrets.GHOST_ADMIN_KEY }}
+          DT_TARGET_GAME_ID: ${{ inputs.target_game_id }}
+          DT_FORCE_DEMO: ${{ inputs.force_demo }}
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add content_state.json season_state.json
           git diff --cached --quiet && echo "No pregame state changes to commit" || git commit -m "Update pregame state"
+          git diff --cached --quiet && exit 0
           git pull --rebase origin main
           git push
