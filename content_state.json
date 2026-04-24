@@ -36,13 +36,11 @@
     }
   },
   "runs": [],
-  "last_successful_run_utc": "2026-04-24T01:10:43.718845Z",
+  "last_successful_run_utc": "2026-04-24T04:28:03.736903Z",
   "last_run_summary": {
     "lane": "state_updater",
     "previous_game_id": "0042500121",
-    "next_game_ids": [
-      "0042500122"
-    ],
+    "next_game_ids": [],
     "game_count": 2
   }
 }
