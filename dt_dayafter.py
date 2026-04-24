@@ -80,7 +80,7 @@ def main() -> None:
         title=title,
         slug=slug,
         html=build_dayafter_html(previous, scoreboard_image, caption),
-        tags=['Thunder', 'Day After'],
+        tags=['day after report', f"thunder {opponent.lower()}"],
         feature_image=_hero_image(previous, data['season_config'], data['series_config']),
         custom_excerpt=_subtitle(games, previous),
         update_if_unpublished=force_demo,
@@ -88,7 +88,9 @@ def main() -> None:
 
     if not ghost.is_real_post(post):
         print('Day after dry-run only; not mutating completion state.')
-        save_all(data)
+        print(f'TITLE={title}')
+        print(f'EXCERPT={_subtitle(games, previous)}')
+        print(f"TAGS={['day after report', f'thunder {opponent.lower()}']}")
         return
 
     previous['automation']['dayafter_slug'] = slug

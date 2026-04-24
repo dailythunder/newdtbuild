@@ -75,10 +75,7 @@ def main() -> None:
         return
 
     opponent = previous.get('opponent') or 'Opponent'
-    if previous.get('result') == 'W':
-        title = f"Scoreboard: Thunder def. {opponent}, {previous.get('thunder_score')}-{previous.get('opponent_score')}"
-    else:
-        title = f"Scoreboard: {opponent} def. Thunder, {previous.get('opponent_score')}-{previous.get('thunder_score')}"
+    title = f"Scoreboard: Thunder vs. {opponent}"
 
     if previous.get('season_phase') == 'playoffs':
         round_label = data['series_config'].get('round_label') or data['season_config'].get('round_label') or previous.get('series_round') or 'Playoffs'
@@ -91,7 +88,7 @@ def main() -> None:
         title=title,
         slug=slug,
         html=build_scoreboard_html(previous, _line_for_game(games, previous)),
-        tags=['Thunder', 'Scoreboard'],
+        tags=['thunder scoreboard', f"thunder {opponent.lower()}"],
         feature_image=feature_image,
         custom_excerpt=custom_excerpt,
         update_if_unpublished=force_demo,
@@ -99,6 +96,13 @@ def main() -> None:
 
     if not ghost.is_real_post(post):
         print('Scoreboard dry-run only; not mutating completion state.')
+        print(f'TITLE={title}')
+        if previous.get('result') == 'W':
+            print(f'HEADER=Final: Thunder def. {opponent}, {previous.get("thunder_score")}-{previous.get("opponent_score")}')
+        else:
+            print(f'HEADER=Final: {opponent} def. Thunder, {previous.get("opponent_score")}-{previous.get("thunder_score")}')
+        print(f"TAGS={['thunder scoreboard', f'thunder {opponent.lower()}']}")
+        print(f'FEATURE_IMAGE={feature_image}')
         return
 
     previous['automation']['scoreboard_slug'] = slug
