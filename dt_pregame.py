@@ -1,10 +1,10 @@
 import os
 from datetime import datetime
 from typing import Dict, List, Optional
+from zoneinfo import ZoneInfo
 
 from dtlib.ghost_client import GhostClient
 from dtlib.html_templates import build_pregame_html
-from dtlib.nba_sources import get_game_by_id
 from dtlib.state_io import load_all, save_all
 from dtlib.utils import is_abs_http_url, parse_iso, slugify, utcnow, utcnow_iso
 
@@ -17,6 +17,15 @@ LOCKED_EXCERPT = "All the essentials for the Thunder's Round 1 matchup: tip & br
 
 def _is_demo_mode() -> bool:
     return str(os.getenv('DT_FORCE_DEMO', '')).strip().lower() == 'true'
+
+
+def _get_game_by_id(games: List[Dict], game_id: Optional[str]) -> Optional[Dict]:
+    if not game_id:
+        return None
+    for game in games:
+        if str(game.get('game_id') or '').strip() == str(game_id).strip():
+            return game
+    return None
 
 
 def _format_date(local_date: Optional[str]) -> str:
@@ -33,14 +42,9 @@ def _format_tip_ct(tipoff_utc: Optional[str]) -> str:
     tip = parse_iso(tipoff_utc)
     if not tip:
         return 'TBD'
-    ct = tip.astimezone().astimezone(datetime.now().astimezone().tzinfo)
-    try:
-        from zoneinfo import ZoneInfo
-
-        ct = tip.astimezone(ZoneInfo('America/Chicago'))
-    except Exception:
-        pass
-    return ct.strftime('%-I:%M %p CT')
+    ct = tip.astimezone(ZoneInfo('America/Chicago'))
+    hour = ct.strftime('%I').lstrip('0') or '0'
+    return f"{hour}:{ct.strftime('%M %p')} CT"
 
 
 def _opp_abbr(opponent: str) -> str:
@@ -64,10 +68,10 @@ def _series_status(games: List[Dict], game: Dict) -> str:
             else:
                 opp_wins += 1
     if okc_wins == opp_wins:
-        return f'tied {okc_wins}-{opp_wins}'
+        return f'Series tied {okc_wins}-{opp_wins}'
     if okc_wins > opp_wins:
         return f'OKC leads {okc_wins}-{opp_wins}'
-    return f'trails {okc_wins}-{opp_wins}'
+    return f'OKC trails {okc_wins}-{opp_wins}'
 
 
 def _best_last_known_starters(games: List[Dict], key: str) -> List[str]:
@@ -79,20 +83,27 @@ def _best_last_known_starters(games: List[Dict], key: str) -> List[str]:
     return []
 
 
+def _pad_starters(values: List[str]) -> List[str]:
+    clean = [v for v in values if isinstance(v, str) and v.strip()]
+    return (clean + ['TBD'] * 5)[:5]
+
+
 def _ensure_demo_game(games: List[Dict], game_id: str, season_config: dict, series_config: dict) -> Dict:
-    existing = get_game_by_id(games, game_id)
+    existing = _get_game_by_id(games, game_id)
     if existing:
         return existing
+
     base = games[-1] if games else {}
-    game = {
+    base_library = base.get('library', {}) if isinstance(base.get('library'), dict) else {}
+    return {
         'season_phase': 'playoffs',
         'series_round': 'R1',
         'game_number_in_series': 3,
         'game_id': game_id,
         'opponent': 'Suns',
         'opponent_full_name': 'Phoenix Suns',
-        'home_away': base.get('home_away') or 'away',
-        'local_date': base.get('local_date') or '2026-04-25',
+        'home_away': 'away',
+        'local_date': '2026-04-25',
         'tipoff_utc': base.get('tipoff_utc') or '2026-04-26T00:30:00Z',
         'status': 'scheduled',
         'result': None,
@@ -100,15 +111,15 @@ def _ensure_demo_game(games: List[Dict], game_id: str, season_config: dict, seri
         'opponent_score': None,
         'links': {},
         'library': {
-            'tv': base.get('library', {}).get('tv') or 'TBD',
-            'line': base.get('library', {}).get('line') or 'TBD',
-            'location': base.get('library', {}).get('location') or 'TBD',
+            'tv': base_library.get('tv') or 'TBD',
+            'line': base_library.get('line') or 'TBD',
+            'location': base_library.get('location') or 'Footprint Center, Phoenix',
             'feature_image_src': DEMO_HERO_IMAGE,
             'feature_image_srcset': None,
             'matchup_matrix_src': DEMO_MATRIX_IMAGE,
             'matchup_matrix_srcset': None,
-            'okc_injuries': base.get('library', {}).get('okc_injuries') or [],
-            'opp_injuries': base.get('library', {}).get('opp_injuries') or [],
+            'okc_injuries': base_library.get('okc_injuries') or [],
+            'opp_injuries': base_library.get('opp_injuries') or [],
             'okc_likely_starters': _best_last_known_starters(games, 'okc_likely_starters'),
             'opp_likely_starters': _best_last_known_starters(games, 'opp_likely_starters'),
         },
@@ -116,7 +127,6 @@ def _ensure_demo_game(games: List[Dict], game_id: str, season_config: dict, seri
         'automation': {'pregame_slug': None},
         'timestamps': {'last_verified_utc': None},
     }
-    return game
 
 
 def _hero_image(game: dict, season_config: dict, series_config: dict, force_demo: bool) -> Optional[str]:
@@ -143,11 +153,18 @@ def _matchup_matrix(game: dict, season_config: dict, series_config: dict, force_
     return matrix if is_abs_http_url(matrix) else None
 
 
-def eligible_game(games, *, target_game_id: Optional[str] = None, force_demo: bool = False, season_config: dict = None, series_config: dict = None) -> Optional[dict]:
+def eligible_game(
+    games: List[Dict],
+    *,
+    target_game_id: Optional[str] = None,
+    force_demo: bool = False,
+    season_config: Optional[dict] = None,
+    series_config: Optional[dict] = None,
+) -> Optional[dict]:
     if force_demo and target_game_id:
         if target_game_id == DEMO_GAME_ID:
             return _ensure_demo_game(games, target_game_id, season_config or {}, series_config or {})
-        return get_game_by_id(games, target_game_id)
+        return _get_game_by_id(games, target_game_id)
 
     now = utcnow()
     candidates = []
@@ -168,19 +185,37 @@ def main() -> None:
     force_demo = _is_demo_mode()
     target_game_id = os.getenv('DT_TARGET_GAME_ID', '').strip() or None
 
-    game = eligible_game(games, target_game_id=target_game_id, force_demo=force_demo, season_config=data['season_config'], series_config=data['series_config'])
+    game = eligible_game(
+        games,
+        target_game_id=target_game_id,
+        force_demo=force_demo,
+        season_config=data.get('season_config', {}),
+        series_config=data.get('series_config', {}),
+    )
     if not game:
         print('No eligible pregame window.')
         return
 
     opponent = game.get('opponent') or 'Opponent'
-    game_number = game.get('game_number_in_series') or '?'
-    title = f"Game {game_number} Pregame Primer: Thunder vs. {opponent}"
-    custom_excerpt = LOCKED_EXCERPT
+    if game.get('season_phase') == 'playoffs' and game.get('game_number_in_series'):
+        game_number = game.get('game_number_in_series') or '?'
+        title = f"Game {game_number} Pregame Primer: Thunder vs. {opponent}"
+        custom_excerpt = LOCKED_EXCERPT
+    else:
+        title = f'Pregame Primer: Thunder vs. {opponent}'
+        location = game.get('library', {}).get('location')
+        custom_excerpt = _format_date(game.get('local_date'))
+        if location:
+            custom_excerpt += f' • {location}'
 
-    game.setdefault('library', {})['okc_likely_starters'] = game.get('library', {}).get('okc_likely_starters') or _best_last_known_starters(games, 'okc_likely_starters') or ['TBD'] * 5
-    game.setdefault('library', {})['opp_likely_starters'] = game.get('library', {}).get('opp_likely_starters') or _best_last_known_starters(games, 'opp_likely_starters') or ['TBD'] * 5
-    game['library']['matchup_matrix_src'] = _matchup_matrix(game, data['season_config'], data['series_config'], force_demo)
+    game.setdefault('library', {})['okc_likely_starters'] = _pad_starters(
+        game.get('library', {}).get('okc_likely_starters') or _best_last_known_starters(games, 'okc_likely_starters')
+    )
+    game.setdefault('library', {})['opp_likely_starters'] = _pad_starters(
+        game.get('library', {}).get('opp_likely_starters') or _best_last_known_starters(games, 'opp_likely_starters')
+    )
+    game['library']['feature_image_src'] = _hero_image(game, data.get('season_config', {}), data.get('series_config', {}), force_demo)
+    game['library']['matchup_matrix_src'] = _matchup_matrix(game, data.get('season_config', {}), data.get('series_config', {}), force_demo)
 
     game['render_context'] = {
         'date_display': _format_date(game.get('local_date')),
@@ -190,7 +225,7 @@ def main() -> None:
     }
 
     slug = game.get('automation', {}).get('pregame_slug') or slugify(f"pregame {game.get('game_id') or game.get('local_date')} {opponent}")
-    html = build_pregame_html(game, data['season_config'])
+    html = build_pregame_html(game, data.get('season_config', {}))
     ghost = GhostClient()
     existing = ghost.find_post_by_slug(slug) if ghost.enabled else None
     if existing and existing.get('status') == 'published':
@@ -204,21 +239,26 @@ def main() -> None:
         slug=slug,
         html=html,
         tags=tags,
-        feature_image=_hero_image(game, data['season_config'], data['series_config'], force_demo),
+        feature_image=game['library'].get('feature_image_src'),
         custom_excerpt=custom_excerpt,
         update_if_unpublished=True,
     )
 
-    if not ghost.is_real_post(post):
+    if post.get('id') == 'dry-run':
         print('Pregame dry-run only; not mutating state.')
         print(f'TITLE={title}')
         print(f'EXCERPT={custom_excerpt}')
         print(f'TAGS={tags}')
         return
 
-    if get_game_by_id(games, game.get('game_id')):
-        game.setdefault('automation', {})['pregame_slug'] = slug
-    data['content_state'].setdefault('ghost_posts', {})[slug] = {'id': post.get('id'), 'lane': 'pregame', 'updated_utc': utcnow_iso()}
+    persisted_game = _get_game_by_id(games, game.get('game_id'))
+    if persisted_game is not None:
+        persisted_game.setdefault('automation', {})['pregame_slug'] = slug
+    data['content_state'].setdefault('ghost_posts', {})[slug] = {
+        'id': post.get('id'),
+        'lane': 'pregame',
+        'updated_utc': utcnow_iso(),
+    }
     save_all(data)
     print(f'Pregame upserted: {slug}')
 
