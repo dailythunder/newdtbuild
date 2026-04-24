@@ -34,6 +34,16 @@ def _official_links(game: Dict) -> str:
     return '<p style="text-align:center;">' + ' | '.join(out) + '</p>'
 
 
+def _dayafter_top_links(game: Dict) -> str:
+    links = game.get('links', {})
+    out = ['<a href="https://www.nba.com/thunder/photos">PHOTOS⚡THUNDER</a>']
+    if links.get('nba_pbp'):
+        out.append(f'<a href="{escape(links["nba_pbp"])}">NBA Play-by-Play</a>')
+    if links.get('courtsketch'):
+        out.append(f'<a href="{escape(links["courtsketch"])}">CourtSketch Box Score</a>')
+    return '<p style="text-align:center;">' + ' | '.join(out) + '</p>'
+
+
 def build_pregame_html(game: Dict, season_config: Dict) -> str:
     lib = game.get('library', {})
     render = game.get('render_context', {})
@@ -81,22 +91,29 @@ def build_pregame_html(game: Dict, season_config: Dict) -> str:
 def build_scoreboard_html(game: Dict, series_or_record_line: str) -> str:
     return '\n'.join(
         p for p in [
+            (
+                f'<h2>Final: Thunder def. {escape(safe_str(game.get("opponent") or "Opponent"))}, '
+                f'{escape(safe_str(game.get("thunder_score") or "TBD"))}-{escape(safe_str(game.get("opponent_score") or "TBD"))}</h2>'
+                if game.get('result') == 'W'
+                else f'<h2>Final: {escape(safe_str(game.get("opponent") or "Opponent"))} def. Thunder, '
+                     f'{escape(safe_str(game.get("opponent_score") or "TBD"))}-{escape(safe_str(game.get("thunder_score") or "TBD"))}</h2>'
+            ),
             f'<p style="text-align:center;"><strong>{escape(safe_str(series_or_record_line))}</strong></p>',
             _official_links(game),
+            '<p><strong>Stay tuned to Daily Thunder for full postgame coverage.</strong></p>',
         ] if p
     )
 
 
 def build_dayafter_html(game: Dict, scoreboard_image_url: str, scoreboard_caption: str) -> str:
     parts = [
-        PHOTOS_LINK,
+        _dayafter_top_links(game),
         f'<figure class="kg-card kg-image-card kg-card-hascaption"><img src="{escape(scoreboard_image_url)}" class="kg-image" alt="Final score graphic" loading="lazy"><figcaption>{escape(scoreboard_caption)}</figcaption></figure>',
         '<h2>Postgame Bolts</h2>',
         '<p>[EDITOR]</p>',
         '<h2>One Key Takeaway</h2>',
         '<p>[EDITOR]</p>',
         '<p>[INSERT FREE PREVIEW BREAK HERE]</p>',
-        _official_links(game),
     ]
     return '\n'.join(p for p in parts if p)
 
