@@ -91,6 +91,8 @@ def main() -> None:
         tags=['thunder scoreboard', f"thunder {opponent.lower()}"],
         feature_image=feature_image,
         custom_excerpt=custom_excerpt,
+        visibility='public',
+        featured=False,
         update_if_unpublished=force_demo,
     )
 

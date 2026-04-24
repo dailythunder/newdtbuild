@@ -83,6 +83,8 @@ def main() -> None:
         tags=['day after report', f"thunder {opponent.lower()}"],
         feature_image=_hero_image(previous, data['season_config'], data['series_config']),
         custom_excerpt=_subtitle(games, previous),
+        visibility='paid',
+        featured=True,
         update_if_unpublished=force_demo,
     )
 
