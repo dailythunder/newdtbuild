@@ -1,36 +1,25 @@
 from html import escape
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from .utils import safe_str
 
 TEAM_NAME = 'Oklahoma City Thunder'
-
-NEWSLETTER_CTA = '''<div class="kg-card kg-cta-card kg-cta-bg-yellow kg-cta-immersive kg-cta-has-img kg-cta-link-accent kg-cta-centered" data-layout="immersive">
-  <div class="kg-cta-content">
-    <div class="kg-cta-content-inner">
-      <div class="kg-cta-text">
-        <p><strong>Thanks for subscribing to The Daily Thunder Newsletter!</strong> Manage your notifications at <a href="https://www.dailythunder.com/#/portal/">DailyThunder.com</a> to receive every post in your inbox in addition to our featured articles.</p>
-      </div>
-      <a href="https://www.dailythunder.com/#/portal/" class="kg-cta-button kg-style-accent" style="color:#FFFFFF;">Update My Preferences</a>
-    </div>
-  </div>
-</div>'''
+PHOTOS_LINK = '<p style="text-align:center;"><a href="https://www.nba.com/thunder/photos">PHOTOS⚡THUNDER</a></p>'
 
 
-def _image_block(src: Optional[str], srcset: Optional[str] = None) -> str:
-    if not src:
-        return ''
-    attrs = f'src="{escape(src)}" class="kg-image" alt="" loading="lazy"'
-    if srcset:
-        attrs += f' srcset="{escape(srcset)}" sizes="(min-width: 1200px) 1200px"'
-    return f'<figure class="kg-card kg-image-card kg-width-wide"><img {attrs}></figure>'
+def _row(label: str, value: str) -> str:
+    return f'<tr><td><strong>{escape(label)}</strong></td><td>{escape(safe_str(value) or "TBD")}</td></tr>'
 
 
-def _two_col(title_left: str, items_left: List[str], title_right: str, items_right: List[str]) -> str:
-    def render(title, items):
-        lis = ''.join(f'<li>{escape(i)}</li>' for i in items) or '<li>TBD</li>'
-        return f'<div><h3>{escape(title)}</h3><ul>{lis}</ul></div>'
-    return f'<div class="kg-card kg-html-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">{render(title_left, items_left)}{render(title_right, items_right)}</div></div>'
+def _two_col_table(title_left: str, items_left: List[str], title_right: str, items_right: List[str]) -> str:
+    left_rows = ''.join(f'<li>{escape(i)}</li>' for i in (items_left or ['TBD']))
+    right_rows = ''.join(f'<li>{escape(i)}</li>' for i in (items_right or ['TBD']))
+    return (
+        '<div class="kg-card kg-html-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">'
+        f'<div><h3>{escape(title_left)}</h3><ul>{left_rows}</ul></div>'
+        f'<div><h3>{escape(title_right)}</h3><ul>{right_rows}</ul></div>'
+        '</div></div>'
+    )
 
 
 def _official_links(game: Dict) -> str:
@@ -42,56 +31,72 @@ def _official_links(game: Dict) -> str:
         out.append(f'<a href="{escape(links["courtsketch"])}">CourtSketch</a>')
     if not out:
         return ''
-    return '<p>' + ' | '.join(out) + '</p>'
+    return '<p style="text-align:center;">' + ' | '.join(out) + '</p>'
 
 
 def build_pregame_html(game: Dict, season_config: Dict) -> str:
     lib = game.get('library', {})
+    render = game.get('render_context', {})
+    opponent = game.get('opponent') or 'Opponent'
+
+    details = [
+        f"<li><strong>Date:</strong> {escape(safe_str(render.get('date_display') or 'TBD'))}</li>",
+        f"<li><strong>Tip Time:</strong> {escape(safe_str(render.get('tip_display') or 'TBD'))}</li>",
+        f"<li><strong>Location:</strong> {escape(safe_str(lib.get('location') or 'TBD'))}</li>",
+        f"<li><strong>TV:</strong> {escape(safe_str(lib.get('tv') or 'TBD'))}</li>",
+        f"<li><strong>Line:</strong> {escape(safe_str(lib.get('line') or 'TBD'))}</li>",
+        f"<li><strong>Round 1 Series:</strong> {escape(safe_str(render.get('series_status') or 'TBD'))}</li>",
+    ]
+
     parts = [
-        _image_block(lib.get('feature_image_src') or game.get('assets', {}).get('game_image'), lib.get('feature_image_srcset')),
-        '<p style="text-align:center;"><a href="https://www.nba.com/thunder/photos">PHOTOS⚡THUNDER</a></p>',
+        PHOTOS_LINK,
         '<h2>Game Details</h2>',
-        f'<p><strong>{escape(TEAM_NAME)}</strong> vs. <strong>{escape(safe_str(game.get("opponent_full_name") or game.get("opponent") or "Opponent"))}</strong></p>',
-        f'<p>{escape(safe_str(game.get("local_date") or "TBD"))}</p>',
-        f'<p>{escape(safe_str(lib.get("location") or ""))}</p>' if lib.get('location') else '',
-        f'<p>{escape(safe_str(lib.get("tv") or ""))}</p>' if lib.get('tv') else '',
-        _official_links(game),
-        _image_block(lib.get('matchup_matrix_src'), lib.get('matchup_matrix_srcset')),
-        '<h2>Injury Report</h2>',
-        _two_col('Thunder', lib.get('okc_injuries') or ['TBD'], game.get('opponent') or 'Opponent', lib.get('opp_injuries') or ['TBD']),
+        '<ul>' + ''.join(details) + '</ul>',
+    ]
+
+    okc_inj = [x for x in (lib.get('okc_injuries') or []) if isinstance(x, str) and x.strip()]
+    opp_inj = [x for x in (lib.get('opp_injuries') or []) if isinstance(x, str) and x.strip()]
+    meaningful = lambda items: any(i.strip().upper() != 'TBD' for i in items)
+    if meaningful(okc_inj) or meaningful(opp_inj):
+        parts.extend([
+            '<h2>Injury Report</h2>',
+            _two_col_table('OKC', okc_inj or ['None'], render.get('opp_header') or f'OPP ({opponent[:3].upper()})', opp_inj or ['None']),
+        ])
+
+    okc_starters = [x for x in (lib.get('okc_likely_starters') or []) if isinstance(x, str) and x.strip()]
+    opp_starters = [x for x in (lib.get('opp_likely_starters') or []) if isinstance(x, str) and x.strip()]
+    parts.extend([
         '<h2>Likely Starters</h2>',
-        _two_col('Thunder', lib.get('okc_likely_starters') or ['TBD'], game.get('opponent') or 'Opponent', lib.get('opp_likely_starters') or ['TBD']),
-        NEWSLETTER_CTA,
-    ]
+        _two_col_table('OKC', okc_starters[:5] or ['TBD'], render.get('opp_header') or f'OPP ({opponent[:3].upper()})', opp_starters[:5] or ['TBD']),
+    ])
+
+    if lib.get('matchup_matrix_src'):
+        parts.append(
+            f'<figure class="kg-card kg-image-card kg-width-wide"><img src="{escape(lib["matchup_matrix_src"])}" class="kg-image" alt="Matchup matrix" loading="lazy"></figure>'
+        )
+
     return '\n'.join(p for p in parts if p)
 
 
-def build_scoreboard_html(game: Dict, series_config: Dict) -> str:
-    result = f"{game.get('thunder_score', '')}-{game.get('opponent_score', '')}"
-    series_line = series_config.get('series_label') if game.get('season_phase') == 'playoffs' else 'Regular Season'
-    parts = [
-        f'<p style="text-align:center;"><strong>{escape(safe_str(series_line))}</strong></p>',
-        f'<h2>Final Score</h2><p>{escape(TEAM_NAME)} {escape(safe_str(game.get("thunder_score")))} - {escape(safe_str(game.get("opponent_score")))} {escape(safe_str(game.get("opponent") or "Opponent"))}</p>',
-        _official_links(game),
-        NEWSLETTER_CTA,
-    ]
-    return '\n'.join(p for p in parts if p)
+def build_scoreboard_html(game: Dict, series_or_record_line: str) -> str:
+    return '\n'.join(
+        p for p in [
+            f'<p style="text-align:center;"><strong>{escape(safe_str(series_or_record_line))}</strong></p>',
+            _official_links(game),
+        ] if p
+    )
 
 
-def build_dayafter_html(game: Dict, series_config: Dict) -> str:
-    lib = game.get('library', {})
-    series_line = series_config.get('series_label') if game.get('season_phase') == 'playoffs' else 'Regular Season'
+def build_dayafter_html(game: Dict, scoreboard_image_url: str, scoreboard_caption: str) -> str:
     parts = [
-        f'<p style="text-align:center;"><strong>{escape(safe_str(series_line))}</strong></p>',
-        _image_block(lib.get('feature_image_src') or game.get('assets', {}).get('game_image'), lib.get('feature_image_srcset')),
-        '<p style="text-align:center;"><a href="https://www.nba.com/thunder/photos">PHOTOS⚡THUNDER</a></p>',
+        PHOTOS_LINK,
+        f'<figure class="kg-card kg-image-card kg-card-hascaption"><img src="{escape(scoreboard_image_url)}" class="kg-image" alt="Final score graphic" loading="lazy"><figcaption>{escape(scoreboard_caption)}</figcaption></figure>',
         '<h2>Postgame Bolts</h2>',
         '<p>[EDITOR]</p>',
         '<h2>One Key Takeaway</h2>',
         '<p>[EDITOR]</p>',
         '<p>[INSERT FREE PREVIEW BREAK HERE]</p>',
         _official_links(game),
-        NEWSLETTER_CTA,
     ]
     return '\n'.join(p for p in parts if p)
 

@@ -28,7 +28,12 @@
   "bolts_seen_urls": [],
   "lanes": {
     "pregame": {},
-    "scoreboard": {},
+    "scoreboard": {
+      "rotation": {
+        "next_win_index": 1,
+        "next_loss_index": 1
+      }
+    },
     "dayafter": {},
     "podcast": {},
     "bolts": {
@@ -36,7 +41,7 @@
     }
   },
   "runs": [],
-  "last_successful_run_utc": "2026-04-24T11:36:40.948845Z",
+  "last_successful_run_utc": "2026-04-24T11:56:41.410240Z",
   "last_run_summary": {
     "lane": "state_updater",
     "previous_game_id": "0042500121",
