@@ -11,15 +11,15 @@
       "lane": "podcast",
       "updated_utc": "2026-04-23T23:41:19.230090Z"
     },
-    "scoreboard-0042500121": {
-      "id": "69eaa5a0e962c80001d783d5",
-      "lane": "scoreboard",
-      "updated_utc": "2026-04-23T23:05:05.171602Z"
-    },
     "day-after-0042500121-suns": {
       "id": "69eaaacfe962c80001d783e4",
       "lane": "dayafter",
       "updated_utc": "2026-04-23T23:27:11.629560Z"
+    },
+    "scoreboard-0042500121": {
+      "id": "69eab2a4e962c80001d783ef",
+      "lane": "scoreboard",
+      "updated_utc": "2026-04-24T00:00:36.782766Z"
     }
   },
   "podcast_seen_keys": [
