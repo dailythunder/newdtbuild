@@ -36,49 +36,45 @@ def _official_links(game: Dict) -> str:
 
 def build_pregame_html(game: Dict, season_config: Dict) -> str:
     lib = game.get('library', {})
+    render = game.get('render_context', {})
     opponent = game.get('opponent') or 'Opponent'
-    game_context = ''
-    if game.get('season_phase') == 'playoffs' and game.get('game_number_in_series'):
-        round_label = season_config.get('round_label') or game.get('series_round') or 'Playoffs'
-        game_context = f'{round_label}, Game {game.get("game_number_in_series")}'
 
-    location = lib.get('location') or 'TBD'
-    local_date = game.get('local_date') or 'TBD'
-    tipoff = game.get('tipoff_utc') or 'TBD'
-    tv = lib.get('tv') or 'TBD'
+    details = [
+        f"<li><strong>Date:</strong> {escape(safe_str(render.get('date_display') or 'TBD'))}</li>",
+        f"<li><strong>Tip Time:</strong> {escape(safe_str(render.get('tip_display') or 'TBD'))}</li>",
+        f"<li><strong>Location:</strong> {escape(safe_str(lib.get('location') or 'TBD'))}</li>",
+        f"<li><strong>TV:</strong> {escape(safe_str(lib.get('tv') or 'TBD'))}</li>",
+        f"<li><strong>Line:</strong> {escape(safe_str(lib.get('line') or 'TBD'))}</li>",
+        f"<li><strong>Round 1 Series:</strong> {escape(safe_str(render.get('series_status') or 'TBD'))}</li>",
+    ]
 
-    details_table = (
-        '<div class="kg-card kg-html-card"><h2>Game Details</h2>'
-        '<table><tbody>'
-        + _row('Matchup', f'{TEAM_NAME} vs. {opponent}')
-        + _row('Date', local_date)
-        + _row('Tipoff (UTC)', tipoff)
-        + _row('Location', location)
-        + _row('TV', tv)
-        + (_row('Series Context', game_context) if game_context else '')
-        + '</tbody></table></div>'
-    )
+    parts = [
+        PHOTOS_LINK,
+        '<h2>Game Details</h2>',
+        '<ul>' + ''.join(details) + '</ul>',
+    ]
 
-    parts = [PHOTOS_LINK, details_table]
+    okc_inj = [x for x in (lib.get('okc_injuries') or []) if isinstance(x, str) and x.strip()]
+    opp_inj = [x for x in (lib.get('opp_injuries') or []) if isinstance(x, str) and x.strip()]
+    meaningful = lambda items: any(i.strip().upper() != 'TBD' for i in items)
+    if meaningful(okc_inj) or meaningful(opp_inj):
+        parts.extend([
+            '<h2>Injury Report</h2>',
+            _two_col_table('OKC', okc_inj or ['None'], render.get('opp_header') or f'OPP ({opponent[:3].upper()})', opp_inj or ['None']),
+        ])
+
+    okc_starters = [x for x in (lib.get('okc_likely_starters') or []) if isinstance(x, str) and x.strip()]
+    opp_starters = [x for x in (lib.get('opp_likely_starters') or []) if isinstance(x, str) and x.strip()]
+    parts.extend([
+        '<h2>Likely Starters</h2>',
+        _two_col_table('OKC', okc_starters[:5] or ['TBD'], render.get('opp_header') or f'OPP ({opponent[:3].upper()})', opp_starters[:5] or ['TBD']),
+    ])
 
     if lib.get('matchup_matrix_src'):
         parts.append(
             f'<figure class="kg-card kg-image-card kg-width-wide"><img src="{escape(lib["matchup_matrix_src"])}" class="kg-image" alt="Matchup matrix" loading="lazy"></figure>'
         )
 
-    okc_inj = lib.get('okc_injuries') or []
-    opp_inj = lib.get('opp_injuries') or []
-    inj_meaningful = any(x.strip().upper() != 'TBD' for x in okc_inj + opp_inj if isinstance(x, str))
-    if inj_meaningful:
-        parts.extend([
-            '<h2>Injury Report</h2>',
-            _two_col_table('Thunder', okc_inj or ['TBD'], opponent, opp_inj or ['TBD']),
-        ])
-
-    parts.extend([
-        '<h2>Likely Starters</h2>',
-        _two_col_table('Thunder', lib.get('okc_likely_starters') or ['TBD'], opponent, lib.get('opp_likely_starters') or ['TBD']),
-    ])
     return '\n'.join(p for p in parts if p)
 
 
