@@ -47,9 +47,13 @@ def _format_tip_ct(tipoff_utc: Optional[str]) -> str:
     return f"{hour}:{ct.strftime('%M %p')} CT"
 
 
-def _opp_abbr(opponent: str) -> str:
-    mapping = {'Suns': 'PHX'}
-    return mapping.get(opponent, (opponent[:3] if opponent else 'OPP').upper())
+def _opponent_header(game: Dict) -> str:
+    return (
+        game.get('opponent_abbr')
+        or game.get('opponent_full_name')
+        or game.get('opponent')
+        or 'Opponent'
+    )
 
 
 def _series_status(games: List[Dict], game: Dict) -> str:
@@ -199,7 +203,8 @@ def main() -> None:
     opponent = game.get('opponent') or 'Opponent'
     if game.get('season_phase') == 'playoffs' and game.get('game_number_in_series'):
         game_number = game.get('game_number_in_series') or '?'
-        title = f"Game {game_number} Pregame Primer: Thunder vs. {opponent}"
+        matchup_label = '@' if str(game.get('home_away') or '').lower() == 'away' else 'vs.'
+        title = f"Game {game_number} Pregame Primer: Thunder {matchup_label} {opponent}"
         custom_excerpt = LOCKED_EXCERPT
     else:
         title = f'Pregame Primer: Thunder vs. {opponent}'
@@ -221,7 +226,7 @@ def main() -> None:
         'date_display': _format_date(game.get('local_date')),
         'tip_display': _format_tip_ct(game.get('tipoff_utc')),
         'series_status': _series_status(games, game),
-        'opp_header': f"OPP ({_opp_abbr(opponent)})",
+        'opp_header': _opponent_header(game),
     }
 
     slug = game.get('automation', {}).get('pregame_slug') or slugify(f"pregame {game.get('game_id') or game.get('local_date')} {opponent}")

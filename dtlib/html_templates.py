@@ -12,13 +12,21 @@ def _row(label: str, value: str) -> str:
 
 
 def _two_col_table(title_left: str, items_left: List[str], title_right: str, items_right: List[str]) -> str:
-    left_rows = ''.join(f'<li>{escape(i)}</li>' for i in (items_left or ['TBD']))
-    right_rows = ''.join(f'<li>{escape(i)}</li>' for i in (items_right or ['TBD']))
+    left_lines = '<br>'.join(escape(i) for i in (items_left or ['TBD']))
+    right_lines = '<br>'.join(escape(i) for i in (items_right or ['TBD']))
     return (
-        '<div class="kg-card kg-html-card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">'
-        f'<div><h3>{escape(title_left)}</h3><ul>{left_rows}</ul></div>'
-        f'<div><h3>{escape(title_right)}</h3><ul>{right_rows}</ul></div>'
-        '</div></div>'
+        '<!--kg-card-begin: html-->'
+        '<table class="matchup-table">'
+        '<thead><tr>'
+        f'<th>{escape(title_left)}</th>'
+        f'<th>{escape(title_right)}</th>'
+        '</tr></thead>'
+        '<tbody><tr>'
+        f'<td>{left_lines}</td>'
+        f'<td>{right_lines}</td>'
+        '</tr></tbody>'
+        '</table>'
+        '<!--kg-card-end: html-->'
     )
 
 
