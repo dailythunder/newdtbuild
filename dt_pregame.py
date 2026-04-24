@@ -241,6 +241,8 @@ def main() -> None:
         tags=tags,
         feature_image=game['library'].get('feature_image_src'),
         custom_excerpt=custom_excerpt,
+        visibility='members',
+        featured=False,
         update_if_unpublished=True,
     )
 

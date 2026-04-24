@@ -52,6 +52,8 @@ class GhostClient:
         tags: Optional[List[str]] = None,
         feature_image: Optional[str] = None,
         custom_excerpt: Optional[str] = None,
+        visibility: Optional[str] = None,
+        featured: Optional[bool] = None,
         update_if_unpublished: bool = True,
     ) -> Dict[str, Any]:
         if not self.enabled:
@@ -74,6 +76,10 @@ class GhostClient:
             base_post['custom_excerpt'] = custom_excerpt.strip()
         if is_abs_http_url(feature_image):
             base_post['feature_image'] = feature_image
+        if visibility in {'public', 'members', 'paid'}:
+            base_post['visibility'] = visibility
+        if isinstance(featured, bool):
+            base_post['featured'] = featured
 
         if existing:
             base_post['id'] = existing['id']

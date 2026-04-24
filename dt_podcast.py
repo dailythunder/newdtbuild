@@ -43,6 +43,8 @@ def main() -> None:
         html=build_podcast_html(title, summary, link),
         tags=['Thunder Podcast'],
         custom_excerpt='The Daily Thunder Podcast',
+        visibility='public',
+        featured=False,
         update_if_unpublished=False,
     )
 
