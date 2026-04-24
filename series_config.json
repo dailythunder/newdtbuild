@@ -2,11 +2,14 @@
   "round_label": "Round 1",
   "series_label": "Thunder vs. Suns",
   "asset_patterns": {
-    "matchup_matrix_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png"
+    "game_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/{game_id}.png",
+    "matchup_matrix_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
+    "scoreboard_win_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-WIN-{index}.png",
+    "scoreboard_loss_image": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-LOSE-{index}.png"
   },
-  "scoreboard_images": {
-    "wins": ["THUNDER-WIN-1.png", "THUNDER-WIN-2.png"],
-    "losses": ["THUNDER-LOSE-1.png", "THUNDER-LOSE-2.png"]
+  "scoreboard_rotation": {
+    "wins": 15,
+    "losses": 4
   },
   "games": []
 }

@@ -34,7 +34,7 @@ def default_content_state() -> Dict[str, Any]:
         'bolts_seen_urls': [],
         'lanes': {
             'pregame': {},
-            'scoreboard': {},
+            'scoreboard': {'rotation': {'next_win_index': 1, 'next_loss_index': 1}},
             'dayafter': {},
             'podcast': {},
             'bolts': {'active': False},
@@ -150,6 +150,7 @@ def load_all() -> Dict[str, Any]:
     content_state.setdefault('ghost_posts', {})
     content_state.setdefault('podcast_seen_keys', [])
     content_state.setdefault('lanes', default_content_state()['lanes'])
+    content_state.setdefault('lanes', {}).setdefault('scoreboard', {}).setdefault('rotation', {'next_win_index': 1, 'next_loss_index': 1})
 
     return {
         'season_config': season_config,
