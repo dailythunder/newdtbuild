@@ -5,6 +5,11 @@ from .utils import safe_str
 
 TEAM_NAME = 'Oklahoma City Thunder'
 PHOTOS_LINK = '<p style="text-align:center;"><a href="https://www.nba.com/thunder/photos">PHOTOS⚡THUNDER</a></p>'
+COURTSKETCH_COMPARISON_URL = 'https://courtsketch.com/team_comparison'
+SPOTIFY_SHOW_EMBED = 'https://open.spotify.com/embed/show/3GLR8rAXafdZnoOdqGsqFR?utm_source=generator'
+APPLE_PODCAST_URL = 'https://podcasts.apple.com/us/podcast/the-daily-thunder-podcast/id1492195735'
+YOUTUBE_PLAYLIST_URL = 'https://youtube.com/playlist?list=PLLuLxky7tVJzxCyQImdWgzQThTWPitqi2&si=2fg3XVrKBtw7VnKP'
+PODCAST_ARCHIVE_URL = 'https://www.dailythunder.com/tag/thunder-podcast/'
 
 
 def _row(label: str, value: str) -> str:
@@ -16,14 +21,14 @@ def _two_col_table(title_left: str, items_left: List[str], title_right: str, ite
     right_lines = '<br>'.join(escape(i) for i in (items_right or ['TBD']))
     return (
         '<!--kg-card-begin: html-->'
-        '<table class="matchup-table">'
+        '<table class="matchup-table" style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:24px;">'
         '<thead><tr>'
-        f'<th>{escape(title_left)}</th>'
-        f'<th>{escape(title_right)}</th>'
+        f'<th style="width:50%;vertical-align:top;text-align:center;padding:0 24px 8px 0;">{escape(title_left)}</th>'
+        f'<th style="width:50%;vertical-align:top;text-align:center;padding:0 0 8px 24px;">{escape(title_right)}</th>'
         '</tr></thead>'
         '<tbody><tr>'
-        f'<td>{left_lines}</td>'
-        f'<td>{right_lines}</td>'
+        f'<td style="width:50%;vertical-align:top;text-align:center;padding:0 24px 0 0;">{left_lines}</td>'
+        f'<td style="width:50%;vertical-align:top;text-align:center;padding:0 0 0 24px;">{right_lines}</td>'
         '</tr></tbody>'
         '</table>'
         '<!--kg-card-end: html-->'
@@ -89,8 +94,9 @@ def build_pregame_html(game: Dict, season_config: Dict) -> str:
     ])
 
     if lib.get('matchup_matrix_src'):
+        matrix_src = escape(lib['matchup_matrix_src'])
         parts.append(
-            f'<figure class="kg-card kg-image-card kg-width-wide"><img src="{escape(lib["matchup_matrix_src"])}" class="kg-image" alt="Matchup matrix" loading="lazy"></figure>'
+            f'<figure class="kg-card kg-image-card kg-width-wide"><a href="{COURTSKETCH_COMPARISON_URL}" target="_blank" rel="noopener"><img src="{matrix_src}" class="kg-image" alt="Matchup matrix" loading="lazy"></a></figure>'
         )
 
     return '\n'.join(p for p in parts if p)
@@ -129,9 +135,12 @@ def build_dayafter_html(game: Dict, scoreboard_image_url: str, scoreboard_captio
 def build_podcast_html(title: str, summary: str, link: str) -> str:
     return '\n'.join([
         f'<h2>{escape(title)}</h2>',
-        f'<p>{escape(summary or "")}</p>',
-        f'<p><a href="{escape(link)}">Listen</a></p>',
-        '<p><a href="https://podcasts.apple.com/us/podcast/the-daily-thunder-podcast/id1492195735">Apple</a> | '
-        '<a href="https://youtube.com/playlist?list=PLLuLxky7tVJzxCyQImdWgzQThTWPitqi2&si=2fg3XVrKBtw7VnKP">YouTube</a> | '
-        '<a href="https://www.dailythunder.com/tag/thunder-podcast/">All episodes</a></p>',
+        '<div class="kg-card kg-html-card dt-podcast-embed">',
+        f'<iframe src="{SPOTIFY_SHOW_EMBED}" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
+        '</div>',
+        f'<p>{escape(summary or "")}</p>' if summary else '',
+        f'<p><a href="{escape(link)}" target="_blank" rel="noopener">Episode link ↗</a></p>' if link else '',
+        '<p style="text-align:center;"><a href="' + APPLE_PODCAST_URL + '" target="_blank" rel="noopener">Apple ↗</a> | '
+        '<a href="' + YOUTUBE_PLAYLIST_URL + '" target="_blank" rel="noopener">YouTube ↗</a> | '
+        '<a href="' + PODCAST_ARCHIVE_URL + '" target="_blank" rel="noopener">All episodes ↗</a></p>',
     ])
