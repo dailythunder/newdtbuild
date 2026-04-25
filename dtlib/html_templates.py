@@ -1,3 +1,4 @@
+import re
 from html import escape
 from typing import Dict, List
 
@@ -7,6 +8,7 @@ TEAM_NAME = 'Oklahoma City Thunder'
 PHOTOS_LINK = '<p style="text-align:center;"><a href="https://www.nba.com/thunder/photos">PHOTOS⚡THUNDER</a></p>'
 COURTSKETCH_COMPARISON_URL = 'https://courtsketch.com/team_comparison'
 SPOTIFY_SHOW_EMBED = 'https://open.spotify.com/embed/show/3GLR8rAXafdZnoOdqGsqFR?utm_source=generator'
+SPOTIFY_SHOW_URL = 'https://open.spotify.com/show/3GLR8rAXafdZnoOdqGsqFR'
 APPLE_PODCAST_URL = 'https://podcasts.apple.com/us/podcast/the-daily-thunder-podcast/id1492195735'
 YOUTUBE_PLAYLIST_URL = 'https://youtube.com/playlist?list=PLLuLxky7tVJzxCyQImdWgzQThTWPitqi2&si=2fg3XVrKBtw7VnKP'
 PODCAST_ARCHIVE_URL = 'https://www.dailythunder.com/tag/thunder-podcast/'
@@ -132,15 +134,37 @@ def build_dayafter_html(game: Dict, scoreboard_image_url: str, scoreboard_captio
     return '\n'.join(p for p in parts if p)
 
 
+def _strip_scripts(html: str) -> str:
+    if not html:
+        return ''
+    return re.sub(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', '', html, flags=re.IGNORECASE)
+
+
+def _extract_spotify_episode_id(text: str) -> str:
+    if not text:
+        return ''
+    match = re.search(r'open\.spotify\.com\/episode\/([A-Za-z0-9]+)', text)
+    return match.group(1) if match else ''
+
+
+def _podcast_embed_src(source_text: str) -> str:
+    episode_id = _extract_spotify_episode_id(source_text or '')
+    if episode_id:
+        return f'https://open.spotify.com/embed/episode/{episode_id}?utm_source=generator'
+    return SPOTIFY_SHOW_EMBED
+
+
 def build_podcast_html(title: str, summary: str, link: str) -> str:
+    embed_src = _podcast_embed_src(link)
+    spotify_link = link if _extract_spotify_episode_id(link or '') else SPOTIFY_SHOW_URL
+    summary_html = _strip_scripts(summary or '')
     return '\n'.join([
-        f'<h2>{escape(title)}</h2>',
         '<div class="kg-card kg-html-card dt-podcast-embed">',
-        f'<iframe src="{SPOTIFY_SHOW_EMBED}" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
+        f'<iframe src="{escape(embed_src)}" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
         '</div>',
-        f'<p>{escape(summary or "")}</p>' if summary else '',
-        f'<p><a href="{escape(link)}" target="_blank" rel="noopener">Episode link ↗</a></p>' if link else '',
-        '<p style="text-align:center;"><a href="' + APPLE_PODCAST_URL + '" target="_blank" rel="noopener">Apple ↗</a> | '
+        summary_html if summary_html else '',
+        '<p style="text-align:center;"><a href="' + escape(spotify_link) + '" target="_blank" rel="noopener">Spotify ↗</a> | '
+        '<a href="' + APPLE_PODCAST_URL + '" target="_blank" rel="noopener">Apple ↗</a> | '
         '<a href="' + YOUTUBE_PLAYLIST_URL + '" target="_blank" rel="noopener">YouTube ↗</a> | '
         '<a href="' + PODCAST_ARCHIVE_URL + '" target="_blank" rel="noopener">All episodes ↗</a></p>',
     ])
