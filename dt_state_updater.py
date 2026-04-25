@@ -1,5 +1,5 @@
+from dtlib.live_refresh import refresh_game_live_fields
 from dtlib.nba_sources import compute_live_window, game_links, refresh_todays_status
-from dtlib.injury_sources import refresh_game_injuries
 from dtlib.state_io import load_all, save_all
 from dtlib.utils import is_abs_http_url, utcnow_iso
 
@@ -50,7 +50,7 @@ def _preserve_library_and_assets(game: dict, season_config: dict, series_config:
             library[key] = []
 
 
-def _injury_refresh_scope(games: list[dict], window: dict) -> list[dict]:
+def _active_live_refresh_scope(games: list[dict], window: dict) -> list[dict]:
     scoped: dict[str, dict] = {}
     previous = window.get('previous_game')
     if previous and previous.get('game_id'):
@@ -89,8 +89,10 @@ def main() -> None:
 
     refresh_todays_status(season_state.get('games', []))
     window = compute_live_window(season_state.get('games', []))
-    for game in _injury_refresh_scope(season_state.get('games', []), window):
-        refresh_game_injuries(game)
+    active_games = _active_live_refresh_scope(season_state.get('games', []), window)
+    print(f'Live refresh scope game count: {len(active_games)}')
+    for game in active_games:
+        refresh_game_live_fields(game)
 
     content_state['last_successful_run_utc'] = utcnow_iso()
     content_state['last_run_summary'] = {

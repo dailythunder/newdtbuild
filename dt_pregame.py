@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 from dtlib.ghost_client import GhostClient
 from dtlib.html_templates import build_pregame_html
-from dtlib.injury_sources import refresh_game_injuries
+from dtlib.live_refresh import refresh_game_live_fields
 from dtlib.state_io import load_all, save_all
 from dtlib.utils import is_abs_http_url, parse_iso, slugify, utcnow, utcnow_iso
 
@@ -202,7 +202,8 @@ def main() -> None:
         print('No eligible pregame window.')
         return
 
-    refresh_game_injuries(game)
+    print(f'Pregame last-mile live refresh for game {game.get("game_id")}')
+    refresh_game_live_fields(game)
 
     opponent = game.get('opponent') or 'Opponent'
     if game.get('season_phase') == 'playoffs' and game.get('game_number_in_series'):
