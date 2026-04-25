@@ -5251,7 +5251,7 @@
         "dayafter_slug": "day-after-0042500142-thunder-suns",
         "pregame_complete": false,
         "scoreboard_complete": false,
-        "dayafter_complete": false
+        "dayafter_complete": true
       },
       "timestamps": {
         "last_verified_utc": null
