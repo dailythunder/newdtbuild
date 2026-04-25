@@ -11,14 +11,15 @@ POSTS_DIR = Path('archive/posts')
 TWEETS_DIR = Path('archive/tweets')
 INDEX_DIR = Path('archive/index')
 GAME_ID_RE = re.compile(r'\b0\d{9}\b')
+
 PLAYER_TERMS = [
-    'Shai', 'Gilgeous-Alexander', 'Jalen Williams', 'JDub', 'Chet', 'Holmgren',
-    'Dort', 'Caruso', 'Hartenstein', 'Isaiah Joe', 'Cason Wallace', 'Ajay Mitchell',
-    'Wiggins', 'Jaylin Williams', 'JWill', 'Topic', 'Dieng', 'Kenrich', 'Krich',
+    'Shai', 'Gilgeous-Alexander', 'JDub', 'Jalen Williams', 'Chet', 'Holmgren', 'Dort',
+    'Caruso', 'Hartenstein', 'Isaiah Joe', 'Cason Wallace', 'Ajay Mitchell',
+    'Wiggins', 'Jaylin Williams', 'JWill', 'Topic', 'Dieng', 'Kenrich', 'Presti', 'Russ', 'KD',
 ]
 TOPIC_TERMS = [
-    'playoffs', 'MVP', 'defense', 'free throws', 'injury', 'hamstring', 'trade',
-    'draft', 'Presti', 'Loud City', 'scoreboard', 'day after', 'podcast', 'bolts',
+    'playoffs', 'mvp', 'defense', 'trade', 'draft', 'injury', 'coaching',
+    'rivalry', 'villain', 'hall of fame', 'timeline', 'podcast', 'pregame', 'scoreboard', 'day after',
 ]
 
 
@@ -42,7 +43,7 @@ def write_json(path: Path, value: Any) -> None:
 
 def iter_jsonl(paths: Iterable[Path]) -> Iterable[Dict[str, Any]]:
     for path in paths:
-        if not path.exists():
+        if not path.exists() or path.name.startswith('all_'):
             continue
         with path.open('r', encoding='utf-8') as f:
             for line in f:
@@ -55,14 +56,6 @@ def iter_jsonl(paths: Iterable[Path]) -> Iterable[Dict[str, Any]]:
                     continue
                 row['_archive_file'] = str(path)
                 yield row
-
-
-def item_key(row: Dict[str, Any]) -> str:
-    return str(row.get('id') or row.get('slug') or row.get('created_at') or row.get('title') or row.get('text') or '')
-
-
-def text_blob(row: Dict[str, Any]) -> str:
-    return ' '.join(str(row.get(k) or '') for k in ('title', 'slug', 'excerpt', 'text', 'html'))
 
 
 def short_ref(row: Dict[str, Any]) -> Dict[str, Any]:
@@ -80,13 +73,19 @@ def short_ref(row: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def add(index: Dict[str, List[Dict[str, Any]]], key: str, row: Dict[str, Any]) -> None:
-    if not key:
-        return
-    index[key].append(short_ref(row))
+    if key:
+        index[key].append(short_ref(row))
+
+
+def text_blob(row: Dict[str, Any]) -> str:
+    return ' '.join(str(row.get(k) or '') for k in ('title', 'slug', 'excerpt', 'text', 'html'))
 
 
 def build_indexes(posts_dir: Path, tweets_dir: Path) -> Dict[str, Any]:
-    rows = list(iter_jsonl(list(posts_dir.glob('**/*.jsonl')) + list(tweets_dir.glob('**/*.jsonl'))))
+    post_paths = sorted(posts_dir.glob('**/*.jsonl'))
+    tweet_paths = sorted(tweets_dir.glob('**/*.jsonl'))
+    rows = list(iter_jsonl(post_paths + tweet_paths))
+
     by_game: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     by_year: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     by_tag: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
@@ -96,16 +95,18 @@ def build_indexes(posts_dir: Path, tweets_dir: Path) -> Dict[str, Any]:
 
     for row in rows:
         blob = text_blob(row)
+        blob_l = blob.lower()
+
         for gid in sorted(set((row.get('game_ids') or []) + GAME_ID_RE.findall(blob))):
-            add(by_game, gid, row)
+            add(by_game, str(gid), row)
 
         dt = row.get('published_at') or row.get('created_at')
         if isinstance(dt, str) and len(dt) >= 4:
             add(by_year, dt[:4], row)
 
         for tag in row.get('tags') or []:
-            add(by_tag, str(tag).lower(), row)
-            tag_l = str(tag).lower()
+            tag_l = str(tag).strip().lower()
+            add(by_tag, tag_l, row)
             if 'pregame' in tag_l:
                 add(by_post_type, 'pregame', row)
             elif 'scoreboard' in tag_l:
@@ -115,13 +116,18 @@ def build_indexes(posts_dir: Path, tweets_dir: Path) -> Dict[str, Any]:
             elif 'podcast' in tag_l:
                 add(by_post_type, 'podcast', row)
 
-        blob_l = blob.lower()
+        if row.get('source') == 'twitter_archive':
+            add(by_post_type, 'tweet', row)
+        elif row.get('source') == 'ghost_admin_api':
+            add(by_post_type, 'ghost_post', row)
+
         for term in PLAYER_TERMS:
             if term.lower() in blob_l:
                 add(by_player, term.lower(), row)
+
         for term in TOPIC_TERMS:
-            if term.lower() in blob_l:
-                add(by_topic, term.lower(), row)
+            if term in blob_l:
+                add(by_topic, term, row)
 
     return {
         'counts': {
@@ -131,6 +137,7 @@ def build_indexes(posts_dir: Path, tweets_dir: Path) -> Dict[str, Any]:
             'tags': len(by_tag),
             'players': len(by_player),
             'topics': len(by_topic),
+            'post_types': len(by_post_type),
         },
         'by_game': by_game,
         'by_year': by_year,
@@ -142,7 +149,7 @@ def build_indexes(posts_dir: Path, tweets_dir: Path) -> Dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Build lightweight indexes from archived Ghost posts and tweets.')
+    parser = argparse.ArgumentParser(description='Build archive indexes from post and tweet JSONL sources.')
     parser.add_argument('--posts-dir', default=str(POSTS_DIR))
     parser.add_argument('--tweets-dir', default=str(TWEETS_DIR))
     parser.add_argument('--output-dir', default=str(INDEX_DIR))
@@ -150,20 +157,20 @@ def main() -> None:
     args = parser.parse_args()
 
     indexes = build_indexes(Path(args.posts_dir), Path(args.tweets_dir))
-    out = Path(args.output_dir)
-    write_json(out / 'by_game.json', indexes['by_game'])
-    write_json(out / 'by_year.json', indexes['by_year'])
-    write_json(out / 'by_tag.json', indexes['by_tag'])
-    write_json(out / 'by_player.json', indexes['by_player'])
-    write_json(out / 'by_topic.json', indexes['by_topic'])
-    write_json(out / 'by_post_type.json', indexes['by_post_type'])
-    write_json(out / 'summary.json', indexes['counts'])
+    output_dir = Path(args.output_dir)
 
-    state_path = Path(args.state_file)
-    state = read_json(state_path, {'version': 1, 'counts': {}})
+    write_json(output_dir / 'by_game.json', indexes['by_game'])
+    write_json(output_dir / 'by_year.json', indexes['by_year'])
+    write_json(output_dir / 'by_tag.json', indexes['by_tag'])
+    write_json(output_dir / 'by_player.json', indexes['by_player'])
+    write_json(output_dir / 'by_topic.json', indexes['by_topic'])
+    write_json(output_dir / 'by_post_type.json', indexes['by_post_type'])
+    write_json(output_dir / 'summary.json', indexes['counts'])
+
+    state = read_json(Path(args.state_file), {'version': 1, 'counts': {}})
     state['last_index_build_utc'] = utcnow_iso()
     state['index_counts'] = indexes['counts']
-    write_json(state_path, state)
+    write_json(Path(args.state_file), state)
     print(f'Archive index build complete: {indexes["counts"]}')
 
 

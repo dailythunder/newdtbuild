@@ -2,11 +2,3 @@ __pycache__/
 *.pyc
 .env
 *.log
-
-# Archive source/output data may contain paid/private site content.
-# Keep generated archive data out of this public automation repo.
-archive/posts/
-archive/tweets/
-archive/index/
-archive_sources/
-*.jsonl
