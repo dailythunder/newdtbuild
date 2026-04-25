@@ -5271,10 +5271,10 @@
       "home_away": "away",
       "local_date": "2026-04-25",
       "tipoff_utc": "2026-04-25T19:30:00Z",
-      "status": "live",
-      "result": null,
-      "thunder_score": 102,
-      "opponent_score": 89,
+      "status": "final",
+      "result": "W",
+      "thunder_score": 121,
+      "opponent_score": 109,
       "links": {
         "nba_game": "https://www.nba.com/game/0042500143",
         "nba_box": "https://www.nba.com/game/0042500143/box-score",
@@ -5327,11 +5327,11 @@
         "scoreboard_slug": "scoreboard-0042500143-thunder-suns",
         "dayafter_slug": "day-after-0042500143-thunder-suns",
         "pregame_complete": false,
-        "scoreboard_complete": false,
+        "scoreboard_complete": true,
         "dayafter_complete": false
       },
       "timestamps": {
-        "last_verified_utc": "2026-04-25T21:48:11.832203Z"
+        "last_verified_utc": "2026-04-25T22:04:41.002530Z"
       },
       "game_number": null,
       "round_label": "Round 1",

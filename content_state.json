@@ -30,6 +30,11 @@
       "id": "69ed02eaafa2430001f0d323",
       "lane": "scoreboard",
       "updated_utc": "2026-04-25T19:08:23.404502Z"
+    },
+    "scoreboard-0042500143-thunder-suns": {
+      "id": "69ed3a79afa2430001f0d5f4",
+      "lane": "scoreboard",
+      "updated_utc": "2026-04-25T22:04:41.953204Z"
     }
   },
   "podcast_seen_keys": [
@@ -40,7 +45,7 @@
     "pregame": {},
     "scoreboard": {
       "rotation": {
-        "next_win_index": 1,
+        "next_win_index": 2,
         "next_loss_index": 1
       }
     },
