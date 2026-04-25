@@ -6,6 +6,7 @@ from dtlib.nba_sources import (
     compute_live_window,
     get_game_by_id,
     playoff_series_status_after_game,
+    refresh_todays_status,
     regular_record_after_game,
 )
 from dtlib.state_io import load_all, save_all
@@ -53,6 +54,7 @@ def _line_for_game(games, game):
 def main() -> None:
     data = load_all()
     games = data['season_state'].get('games', [])
+    refresh_todays_status(games)
     force_demo = _is_demo_mode()
     target_game_id = os.getenv('DT_TARGET_GAME_ID', '').strip() or None
 
@@ -67,7 +69,15 @@ def main() -> None:
 
     ghost = GhostClient()
     ghost_posts = data['content_state'].setdefault('ghost_posts', {})
-    slug = previous['automation'].get('scoreboard_slug') or slugify(f"scoreboard {previous.get('game_id')}")
+    automation = previous.setdefault('automation', {})
+    slug = automation.get('scoreboard_slug') or slugify(f"scoreboard {previous.get('game_id')}")
+
+    if not force_demo and automation.get('scoreboard_complete') is True:
+        print('Scoreboard already complete.')
+        return
+    if not force_demo and slug in ghost_posts:
+        print('Scoreboard already tracked.')
+        return
 
     existing = ghost.find_post_by_slug(slug) if ghost.enabled else None
     if existing and existing.get('status') == 'published':
@@ -107,9 +117,10 @@ def main() -> None:
         print(f'FEATURE_IMAGE={feature_image}')
         return
 
-    previous['automation']['scoreboard_slug'] = slug
-    previous['automation']['scoreboard_complete'] = True
-    data['content_state'].setdefault('lanes', {}).setdefault('scoreboard', {}).setdefault('rotation', {'next_win_index': 1, 'next_loss_index': 1})[next_rotation[0]] = next_rotation[1]
+    automation['scoreboard_slug'] = slug
+    automation['scoreboard_complete'] = True
+    if not force_demo and not existing:
+        data['content_state'].setdefault('lanes', {}).setdefault('scoreboard', {}).setdefault('rotation', {'next_win_index': 1, 'next_loss_index': 1})[next_rotation[0]] = next_rotation[1]
     ghost_posts[slug] = {'id': post.get('id'), 'lane': 'scoreboard', 'updated_utc': utcnow_iso()}
     save_all(data)
     print(f'Scoreboard created: {slug}')
