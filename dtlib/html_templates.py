@@ -85,14 +85,14 @@ def build_pregame_html(game: Dict, season_config: Dict) -> str:
     if meaningful(okc_inj) or meaningful(opp_inj):
         parts.extend([
             '<h2>Injury Report</h2>',
-            _two_col_table('OKC', okc_inj or ['None'], render.get('opp_header') or f'OPP ({opponent[:3].upper()})', opp_inj or ['None']),
+            _two_col_table('OKC', okc_inj or ['None'], render.get('opp_header') or opponent[:3].upper(), opp_inj or ['None']),
         ])
 
     okc_starters = [x for x in (lib.get('okc_likely_starters') or []) if isinstance(x, str) and x.strip()]
     opp_starters = [x for x in (lib.get('opp_likely_starters') or []) if isinstance(x, str) and x.strip()]
     parts.extend([
         '<h2>Likely Starters</h2>',
-        _two_col_table('OKC', okc_starters[:5] or ['TBD'], render.get('opp_header') or f'OPP ({opponent[:3].upper()})', opp_starters[:5] or ['TBD']),
+        _two_col_table('OKC', okc_starters[:5] or ['TBD'], render.get('opp_header') or opponent[:3].upper(), opp_starters[:5] or ['TBD']),
     ])
 
     if lib.get('matchup_matrix_src'):

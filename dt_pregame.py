@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 
 from dtlib.ghost_client import GhostClient
 from dtlib.html_templates import build_pregame_html
+from dtlib.injury_sources import refresh_game_injuries
 from dtlib.state_io import load_all, save_all
 from dtlib.utils import is_abs_http_url, parse_iso, slugify, utcnow, utcnow_iso
 
@@ -50,6 +51,7 @@ def _format_tip_ct(tipoff_utc: Optional[str]) -> str:
 def _opponent_header(game: Dict) -> str:
     return (
         game.get('opponent_abbr')
+        or game.get('opponent_code')
         or game.get('opponent_full_name')
         or game.get('opponent')
         or 'Opponent'
@@ -199,6 +201,8 @@ def main() -> None:
     if not game:
         print('No eligible pregame window.')
         return
+
+    refresh_game_injuries(game)
 
     opponent = game.get('opponent') or 'Opponent'
     if game.get('season_phase') == 'playoffs' and game.get('game_number_in_series'):

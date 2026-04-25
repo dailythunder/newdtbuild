@@ -2,7 +2,7 @@ name: DT Scoreboard
 
 on:
   schedule:
-    - cron: "5,20,35,50 * * * *"
+    - cron: "6,21,36,51 * * * *"
   workflow_dispatch:
     inputs:
       target_game_id:
