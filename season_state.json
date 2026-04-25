@@ -2,7 +2,7 @@
   "team": "OKC",
   "team_full_name": "Oklahoma City Thunder",
   "season_label": "2025-26",
-  "generated_at_utc": "2026-04-25T05:04:12.974663Z",
+  "generated_at_utc": "2026-04-25T18:27:52.965493Z",
   "registry_version": 3,
   "registry_scope": {
     "regular_season_seeded": true,
@@ -5132,16 +5132,30 @@
         "feature_image_srcset": null,
         "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
         "matchup_matrix_srcset": null,
-        "okc_injuries": [],
-        "opp_injuries": [],
+        "okc_injuries": [
+          "Isaiah Joe - OUT (Personal)",
+          "Jalen Williams - OUT (Left Hamstring Not Specified)",
+          "Thomas Sorber - OFS (Right Knee Surgery)"
+        ],
+        "opp_injuries": [
+          "Jordan Goodwin - GTD (Left Calf Soreness)",
+          "Grayson Allen - GTD (Left Hamstring Strain)",
+          "Mark Williams - OUT (Left Foot Fracture)"
+        ],
         "okc_likely_starters": [
           "Shai Gilgeous-Alexander",
+          "Cason Wallace",
           "Luguentz Dort",
-          "Jalen Williams",
           "Chet Holmgren",
           "Isaiah Hartenstein"
         ],
-        "opp_likely_starters": [],
+        "opp_likely_starters": [
+          "Devin Booker",
+          "Jalen Green",
+          "Jordan Goodwin",
+          "Dillon Brooks",
+          "Oso Ighodaro"
+        ],
         "tipoff_utc_precision": "exact",
         "source_url": "https://www.nba.com/team/1610612760/schedule",
         "notes": "OKC leads 1-0"
@@ -5166,7 +5180,8 @@
       "round_label": "Round 1",
       "series_label": "Thunder vs. Suns",
       "opponent_abbr": "PHX",
-      "if_necessary": false
+      "if_necessary": false,
+      "source_ids": {}
     },
     {
       "season_phase": "playoffs",
@@ -5197,16 +5212,30 @@
         "feature_image_srcset": null,
         "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
         "matchup_matrix_srcset": null,
-        "okc_injuries": [],
-        "opp_injuries": [],
+        "okc_injuries": [
+          "Isaiah Joe - OUT (Personal)",
+          "Jalen Williams - OUT (Left Hamstring Not Specified)",
+          "Thomas Sorber - OFS (Right Knee Surgery)"
+        ],
+        "opp_injuries": [
+          "Jordan Goodwin - GTD (Left Calf Soreness)",
+          "Grayson Allen - GTD (Left Hamstring Strain)",
+          "Mark Williams - OUT (Left Foot Fracture)"
+        ],
         "okc_likely_starters": [
           "Shai Gilgeous-Alexander",
+          "Cason Wallace",
           "Luguentz Dort",
-          "Jalen Williams",
           "Chet Holmgren",
           "Isaiah Hartenstein"
         ],
-        "opp_likely_starters": [],
+        "opp_likely_starters": [
+          "Devin Booker",
+          "Jalen Green",
+          "Jordan Goodwin",
+          "Dillon Brooks",
+          "Oso Ighodaro"
+        ],
         "tipoff_utc_precision": "exact",
         "source_url": "https://www.nba.com/team/1610612760/schedule",
         "notes": "OKC leads 2-0"
@@ -5231,7 +5260,8 @@
       "round_label": "Round 1",
       "series_label": "Thunder vs. Suns",
       "opponent_abbr": "PHX",
-      "if_necessary": false
+      "if_necessary": false,
+      "source_ids": {}
     },
     {
       "season_phase": "playoffs",
@@ -5245,8 +5275,8 @@
       "tipoff_utc": "2026-04-25T19:30:00Z",
       "status": "scheduled",
       "result": null,
-      "thunder_score": null,
-      "opponent_score": null,
+      "thunder_score": 0,
+      "opponent_score": 0,
       "links": {
         "nba_game": "https://www.nba.com/game/0042500143",
         "nba_box": "https://www.nba.com/game/0042500143/box-score",
@@ -5262,12 +5292,20 @@
         "feature_image_srcset": null,
         "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
         "matchup_matrix_srcset": null,
-        "okc_injuries": [],
-        "opp_injuries": [],
+        "okc_injuries": [
+          "Isaiah Joe - OUT (Personal)",
+          "Jalen Williams - OUT (Left Hamstring Not Specified)",
+          "Thomas Sorber - OFS (Right Knee Surgery)"
+        ],
+        "opp_injuries": [
+          "Jordan Goodwin - GTD (Left Calf Soreness)",
+          "Grayson Allen - GTD (Left Hamstring Strain)",
+          "Mark Williams - OUT (Left Foot Fracture)"
+        ],
         "okc_likely_starters": [
           "Shai Gilgeous-Alexander",
+          "Cason Wallace",
           "Luguentz Dort",
-          "Jalen Williams",
           "Chet Holmgren",
           "Isaiah Hartenstein"
         ],
@@ -5276,7 +5314,7 @@
           "Jalen Green",
           "Jordan Goodwin",
           "Dillon Brooks",
-          "Mark Williams"
+          "Oso Ighodaro"
         ],
         "tipoff_utc_precision": "exact",
         "source_url": "https://www.nba.com/team/1610612760/schedule",
@@ -5296,13 +5334,14 @@
         "dayafter_complete": false
       },
       "timestamps": {
-        "last_verified_utc": null
+        "last_verified_utc": "2026-04-25T18:27:48.349539Z"
       },
       "game_number": null,
       "round_label": "Round 1",
       "series_label": "Thunder vs. Suns",
       "opponent_abbr": "PHX",
-      "if_necessary": false
+      "if_necessary": false,
+      "source_ids": {}
     },
     {
       "season_phase": "playoffs",
@@ -5333,12 +5372,20 @@
         "feature_image_srcset": null,
         "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
         "matchup_matrix_srcset": null,
-        "okc_injuries": [],
-        "opp_injuries": [],
+        "okc_injuries": [
+          "Isaiah Joe - OUT (Personal)",
+          "Jalen Williams - OUT (Left Hamstring Not Specified)",
+          "Thomas Sorber - OFS (Right Knee Surgery)"
+        ],
+        "opp_injuries": [
+          "Jordan Goodwin - GTD (Left Calf Soreness)",
+          "Grayson Allen - GTD (Left Hamstring Strain)",
+          "Mark Williams - OUT (Left Foot Fracture)"
+        ],
         "okc_likely_starters": [
           "Shai Gilgeous-Alexander",
+          "Cason Wallace",
           "Luguentz Dort",
-          "Jalen Williams",
           "Chet Holmgren",
           "Isaiah Hartenstein"
         ],
@@ -5347,7 +5394,7 @@
           "Jalen Green",
           "Jordan Goodwin",
           "Dillon Brooks",
-          "Mark Williams"
+          "Oso Ighodaro"
         ],
         "tipoff_utc_precision": "exact",
         "source_url": "https://www.nba.com/team/1610612760/schedule",
@@ -5373,7 +5420,8 @@
       "round_label": "Round 1",
       "series_label": "Thunder vs. Suns",
       "opponent_abbr": "PHX",
-      "if_necessary": false
+      "if_necessary": false,
+      "source_ids": {}
     },
     {
       "season_phase": "playoffs",
@@ -5404,12 +5452,20 @@
         "feature_image_srcset": null,
         "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
         "matchup_matrix_srcset": null,
-        "okc_injuries": [],
-        "opp_injuries": [],
+        "okc_injuries": [
+          "Isaiah Joe - OUT (Personal)",
+          "Jalen Williams - OUT (Left Hamstring Not Specified)",
+          "Thomas Sorber - OFS (Right Knee Surgery)"
+        ],
+        "opp_injuries": [
+          "Jordan Goodwin - GTD (Left Calf Soreness)",
+          "Grayson Allen - GTD (Left Hamstring Strain)",
+          "Mark Williams - OUT (Left Foot Fracture)"
+        ],
         "okc_likely_starters": [
           "Shai Gilgeous-Alexander",
+          "Cason Wallace",
           "Luguentz Dort",
-          "Jalen Williams",
           "Chet Holmgren",
           "Isaiah Hartenstein"
         ],
@@ -5418,7 +5474,7 @@
           "Jalen Green",
           "Jordan Goodwin",
           "Dillon Brooks",
-          "Mark Williams"
+          "Oso Ighodaro"
         ],
         "tipoff_utc_precision": "tbd",
         "source_url": "https://www.nba.com/team/1610612760/schedule",
@@ -5444,7 +5500,8 @@
       "round_label": "Round 1",
       "series_label": "Thunder vs. Suns",
       "opponent_abbr": "PHX",
-      "if_necessary": true
+      "if_necessary": true,
+      "source_ids": {}
     },
     {
       "season_phase": "playoffs",
@@ -5475,12 +5532,20 @@
         "feature_image_srcset": null,
         "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
         "matchup_matrix_srcset": null,
-        "okc_injuries": [],
-        "opp_injuries": [],
+        "okc_injuries": [
+          "Isaiah Joe - OUT (Personal)",
+          "Jalen Williams - OUT (Left Hamstring Not Specified)",
+          "Thomas Sorber - OFS (Right Knee Surgery)"
+        ],
+        "opp_injuries": [
+          "Jordan Goodwin - GTD (Left Calf Soreness)",
+          "Grayson Allen - GTD (Left Hamstring Strain)",
+          "Mark Williams - OUT (Left Foot Fracture)"
+        ],
         "okc_likely_starters": [
           "Shai Gilgeous-Alexander",
+          "Cason Wallace",
           "Luguentz Dort",
-          "Jalen Williams",
           "Chet Holmgren",
           "Isaiah Hartenstein"
         ],
@@ -5489,7 +5554,7 @@
           "Jalen Green",
           "Jordan Goodwin",
           "Dillon Brooks",
-          "Mark Williams"
+          "Oso Ighodaro"
         ],
         "tipoff_utc_precision": "tbd",
         "source_url": "https://www.nba.com/team/1610612760/schedule",
@@ -5515,7 +5580,8 @@
       "round_label": "Round 1",
       "series_label": "Thunder vs. Suns",
       "opponent_abbr": "PHX",
-      "if_necessary": true
+      "if_necessary": true,
+      "source_ids": {}
     },
     {
       "season_phase": "playoffs",
@@ -5546,12 +5612,20 @@
         "feature_image_srcset": null,
         "matchup_matrix_src": "https://storage.ghost.io/c/f2/f9/f2f98597-fc28-4a31-8135-86802fa12f06/content/images/2026/04/THUNDER-SUNS-MATCHUP-MATRIX.png",
         "matchup_matrix_srcset": null,
-        "okc_injuries": [],
-        "opp_injuries": [],
+        "okc_injuries": [
+          "Isaiah Joe - OUT (Personal)",
+          "Jalen Williams - OUT (Left Hamstring Not Specified)",
+          "Thomas Sorber - OFS (Right Knee Surgery)"
+        ],
+        "opp_injuries": [
+          "Jordan Goodwin - GTD (Left Calf Soreness)",
+          "Grayson Allen - GTD (Left Hamstring Strain)",
+          "Mark Williams - OUT (Left Foot Fracture)"
+        ],
         "okc_likely_starters": [
           "Shai Gilgeous-Alexander",
+          "Cason Wallace",
           "Luguentz Dort",
-          "Jalen Williams",
           "Chet Holmgren",
           "Isaiah Hartenstein"
         ],
@@ -5560,7 +5634,7 @@
           "Jalen Green",
           "Jordan Goodwin",
           "Dillon Brooks",
-          "Mark Williams"
+          "Oso Ighodaro"
         ],
         "tipoff_utc_precision": "tbd",
         "source_url": "https://www.nba.com/team/1610612760/schedule",
@@ -5586,7 +5660,8 @@
       "round_label": "Round 1",
       "series_label": "Thunder vs. Suns",
       "opponent_abbr": "PHX",
-      "if_necessary": true
+      "if_necessary": true,
+      "source_ids": {}
     }
   ]
 }
