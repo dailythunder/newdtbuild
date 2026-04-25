@@ -62,7 +62,8 @@ class GhostClient:
 
         html = self._sanitize_html(html)
         existing = self.find_post_by_slug(slug)
-        if existing and existing.get('status') == 'published':
+        if existing and existing.get('status') in {'published', 'scheduled'}:
+            print(f'Ghost post locked by status={existing.get("status")} slug={slug}')
             return existing
         if existing and not update_if_unpublished:
             return existing
