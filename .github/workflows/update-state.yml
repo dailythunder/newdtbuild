@@ -24,11 +24,18 @@ jobs:
           python-version: '3.11'
       - run: pip install -r requirements.txt
       - run: python dt_state_updater.py
-      - run: |
+      - name: Commit state changes
+        run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+
           git add season_state.json team_state.json stats_state.json content_state.json
-          git diff --cached --quiet && echo "No state changes to commit" || git commit -m "Update DT state"
-          git diff --cached --quiet && exit 0
-          git pull --rebase origin main
+
+          if git diff --cached --quiet; then
+            echo "No state changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Update DT state"
+          git pull --rebase --autostash origin main
           git push
