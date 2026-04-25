@@ -25,6 +25,11 @@
       "id": "69ece5c6afa2430001f0ceca",
       "lane": "dayafter",
       "updated_utc": "2026-04-25T18:41:07.865320Z"
+    },
+    "scoreboard-0042500142-thunder-suns": {
+      "id": "69ed02eaafa2430001f0d323",
+      "lane": "scoreboard",
+      "updated_utc": "2026-04-25T19:08:23.404502Z"
     }
   },
   "podcast_seen_keys": [

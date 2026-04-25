@@ -5250,7 +5250,7 @@
         "scoreboard_slug": "scoreboard-0042500142-thunder-suns",
         "dayafter_slug": "day-after-0042500142-thunder-suns",
         "pregame_complete": false,
-        "scoreboard_complete": false,
+        "scoreboard_complete": true,
         "dayafter_complete": true
       },
       "timestamps": {
@@ -5334,7 +5334,7 @@
         "dayafter_complete": false
       },
       "timestamps": {
-        "last_verified_utc": "2026-04-25T18:27:48.349539Z"
+        "last_verified_utc": "2026-04-25T19:08:22.939050Z"
       },
       "game_number": null,
       "round_label": "Round 1",
