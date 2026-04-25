@@ -1,4 +1,5 @@
 from dtlib.nba_sources import compute_live_window, game_links, refresh_todays_status
+from dtlib.injury_sources import refresh_game_injuries
 from dtlib.state_io import load_all, save_all
 from dtlib.utils import is_abs_http_url, utcnow_iso
 
@@ -49,6 +50,32 @@ def _preserve_library_and_assets(game: dict, season_config: dict, series_config:
             library[key] = []
 
 
+def _injury_refresh_scope(games: list[dict], window: dict) -> list[dict]:
+    scoped: dict[str, dict] = {}
+    previous = window.get('previous_game')
+    if previous and previous.get('game_id'):
+        scoped[str(previous['game_id'])] = previous
+    for game in window.get('next_games', []):
+        if game.get('game_id'):
+            scoped[str(game['game_id'])] = game
+
+    active_series_keys = set()
+    for game in games:
+        if game.get('season_phase') != 'playoffs':
+            continue
+        if game.get('status') in {'final', 'completed'}:
+            continue
+        active_series_keys.add((game.get('opponent'), game.get('series_round')))
+    for game in games:
+        if game.get('season_phase') != 'playoffs':
+            continue
+        key = (game.get('opponent'), game.get('series_round'))
+        if key in active_series_keys and game.get('game_id'):
+            scoped[str(game['game_id'])] = game
+
+    return list(scoped.values())
+
+
 def main() -> None:
     data = load_all()
     season_state = data['season_state']
@@ -62,6 +89,8 @@ def main() -> None:
 
     refresh_todays_status(season_state.get('games', []))
     window = compute_live_window(season_state.get('games', []))
+    for game in _injury_refresh_scope(season_state.get('games', []), window):
+        refresh_game_injuries(game)
 
     content_state['last_successful_run_utc'] = utcnow_iso()
     content_state['last_run_summary'] = {
