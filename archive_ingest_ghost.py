@@ -38,10 +38,10 @@ def write_json(path: Path, value: Any) -> None:
         f.write('\n')
 
 
-def append_jsonl(path: Path, rows: Iterable[Dict[str, Any]]) -> int:
+def write_jsonl(path: Path, rows: Iterable[Dict[str, Any]]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     count = 0
-    with path.open('a', encoding='utf-8') as f:
+    with path.open('w', encoding='utf-8') as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + '\n')
             count += 1
@@ -64,21 +64,19 @@ def parse_date(value: Optional[str]) -> Optional[datetime]:
         return None
     try:
         return datetime.fromisoformat(value.replace('Z', '+00:00'))
-    except Exception:
+    except ValueError:
         return None
 
 
 def ghost_token(admin_key: str) -> str:
-    key_id, secret = admin_key.split(':')
+    key_id, secret = admin_key.split(':', 1)
     iat = int(time.time())
     payload = {'iat': iat, 'exp': iat + 5 * 60, 'aud': '/admin/'}
     return jwt.encode(payload, bytes.fromhex(secret), algorithm='HS256', headers={'kid': key_id})
 
 
 def fetch_posts(base_url: str, admin_key: str, include_drafts: bool = False) -> List[Dict[str, Any]]:
-    base = base_url.rstrip('/')
     headers = {'Authorization': f'Ghost {ghost_token(admin_key)}'}
-    status_filter = '' if include_drafts else 'status:published'
     page = 1
     posts: List[Dict[str, Any]] = []
 
@@ -90,15 +88,16 @@ def fetch_posts(base_url: str, admin_key: str, include_drafts: bool = False) -> 
             'formats': 'html',
             'order': 'published_at asc',
         }
-        if status_filter:
-            params['filter'] = status_filter
-        url = f'{base}/ghost/api/admin/posts/?{urlencode(params)}'
-        r = requests.get(url, headers=headers, timeout=60)
-        print(f'Ghost posts page {page}: {r.status_code}')
-        r.raise_for_status()
-        payload = r.json()
-        batch = payload.get('posts', []) or []
+        if not include_drafts:
+            params['filter'] = 'status:published'
+
+        url = f"{base_url.rstrip('/')}/ghost/api/admin/posts/?{urlencode(params)}"
+        response = requests.get(url, headers=headers, timeout=60)
+        response.raise_for_status()
+        payload = response.json()
+        batch = payload.get('posts') or []
         posts.extend(batch)
+
         pagination = (payload.get('meta') or {}).get('pagination') or {}
         pages = int(pagination.get('pages') or page)
         if page >= pages or not batch:
@@ -115,6 +114,7 @@ def normalize_post(post: Dict[str, Any]) -> Dict[str, Any]:
     tags = [t.get('name') for t in post.get('tags', []) if isinstance(t, dict) and t.get('name')]
     authors = [a.get('name') for a in post.get('authors', []) if isinstance(a, dict) and a.get('name')]
     game_ids = sorted(set(GAME_ID_RE.findall(' '.join([post.get('title') or '', post.get('slug') or '', html, text]))))
+
     return {
         'id': post.get('id'),
         'uuid': post.get('uuid'),
@@ -144,10 +144,10 @@ def bucket_path(row: Dict[str, Any], output_dir: Path) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Ingest Ghost posts into chunked JSONL archive files.')
+    parser = argparse.ArgumentParser(description='Ingest Ghost posts into archive JSONL files.')
     parser.add_argument('--output-dir', default=str(DEFAULT_OUTPUT_DIR))
-    parser.add_argument('--include-drafts', action='store_true')
     parser.add_argument('--state-file', default=str(ARCHIVE_STATE))
+    parser.add_argument('--include-drafts', action='store_true')
     args = parser.parse_args()
 
     ghost_url = os.getenv('GHOST_URL', '').strip()
@@ -155,34 +155,31 @@ def main() -> None:
     if not ghost_url or not admin_key:
         raise SystemExit('Missing GHOST_URL or GHOST_ADMIN_KEY')
 
+    posts = [normalize_post(post) for post in fetch_posts(ghost_url, admin_key, include_drafts=args.include_drafts)]
     output_dir = Path(args.output_dir)
-    posts = fetch_posts(ghost_url, admin_key, include_drafts=args.include_drafts)
-    rows = [normalize_post(p) for p in posts]
 
-    # Rebuild Ghost post archive atomically by clearing only generated JSONL files under output_dir.
     if output_dir.exists():
         for old in output_dir.glob('**/*.jsonl'):
             old.unlink()
 
     by_path: Dict[Path, List[Dict[str, Any]]] = {}
-    for row in rows:
+    for row in posts:
         by_path.setdefault(bucket_path(row, output_dir), []).append(row)
 
-    written = 0
-    for path, chunk in sorted(by_path.items()):
-        written += append_jsonl(path, chunk)
-        print(f'Wrote {len(chunk)} rows -> {path}')
+    total = 0
+    for path, rows in sorted(by_path.items()):
+        count = write_jsonl(path, rows)
+        total += count
+        print(f'Wrote {count} rows -> {path}')
 
-    all_path = output_dir / 'all_posts.jsonl'
-    append_jsonl(all_path, rows)
-    print(f'Wrote {len(rows)} rows -> {all_path}')
+    write_jsonl(output_dir / 'all_posts.jsonl', posts)
+    print(f'Wrote {len(posts)} rows -> {output_dir / "all_posts.jsonl"}')
 
-    state_path = Path(args.state_file)
-    state = read_json(state_path, {'version': 1, 'counts': {}})
+    state = read_json(Path(args.state_file), {'version': 1, 'counts': {}})
     state['last_ghost_ingest_utc'] = utcnow_iso()
-    state.setdefault('counts', {})['ghost_posts'] = written
-    write_json(state_path, state)
-    print(f'Ghost ingest complete: {written} posts')
+    state.setdefault('counts', {})['ghost_posts'] = total
+    write_json(Path(args.state_file), state)
+    print(f'Ghost ingest complete: {total} posts')
 
 
 if __name__ == '__main__':

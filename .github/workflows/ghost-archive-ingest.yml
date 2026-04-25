@@ -1,0 +1,53 @@
+name: Ghost Archive Ingest
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install -r requirements.txt
+
+      - name: Validate Ghost secrets
+        run: |
+          if [ -z "${GHOST_URL}" ] || [ -z "${GHOST_ADMIN_KEY}" ]; then
+            echo "Missing GHOST_URL or GHOST_ADMIN_KEY"
+            exit 1
+          fi
+        env:
+          GHOST_URL: ${{ secrets.GHOST_URL }}
+          GHOST_ADMIN_KEY: ${{ secrets.GHOST_ADMIN_KEY }}
+
+      - name: Run Ghost archive ingest
+        run: python archive_ingest_ghost.py
+        env:
+          GHOST_URL: ${{ secrets.GHOST_URL }}
+          GHOST_ADMIN_KEY: ${{ secrets.GHOST_ADMIN_KEY }}
+
+      - name: Commit generated archive changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          git add archive/posts archive_state.json
+
+          if git diff --cached --quiet; then
+            echo "No archive changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Ingest Ghost archive"
+          git pull --rebase --autostash origin main
+          git push

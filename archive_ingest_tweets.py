@@ -29,10 +29,10 @@ def write_json(path: Path, value: Any) -> None:
         f.write('\n')
 
 
-def append_jsonl(path: Path, rows: Iterable[Dict[str, Any]]) -> int:
+def write_jsonl(path: Path, rows: Iterable[Dict[str, Any]]) -> int:
     path.parent.mkdir(parents=True, exist_ok=True)
     count = 0
-    with path.open('a', encoding='utf-8') as f:
+    with path.open('w', encoding='utf-8') as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + '\n')
             count += 1
@@ -53,7 +53,6 @@ def parse_twitter_js(path: Path) -> List[Dict[str, Any]]:
 def parse_created_at(value: Optional[str]) -> Optional[datetime]:
     if not value:
         return None
-    # Twitter archive style: Tue Apr 07 22:52:51 +0000 2009
     for fmt in ('%a %b %d %H:%M:%S %z %Y', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%dT%H:%M:%SZ'):
         try:
             dt = datetime.strptime(value, fmt)
@@ -68,10 +67,11 @@ def parse_created_at(value: Optional[str]) -> Optional[datetime]:
 def extract_entities(tweet: Dict[str, Any]) -> Dict[str, List[str]]:
     entities = tweet.get('entities') or {}
     urls = []
-    for u in entities.get('urls') or []:
-        expanded = u.get('expanded_url') or u.get('url')
+    for entry in entities.get('urls') or []:
+        expanded = entry.get('expanded_url') or entry.get('url')
         if expanded:
             urls.append(expanded)
+
     hashtags = [h.get('text') for h in entities.get('hashtags') or [] if h.get('text')]
     mentions = [m.get('screen_name') for m in entities.get('user_mentions') or [] if m.get('screen_name')]
     media = []
@@ -79,6 +79,7 @@ def extract_entities(tweet: Dict[str, Any]) -> Dict[str, List[str]]:
         media_url = m.get('media_url_https') or m.get('media_url') or m.get('expanded_url')
         if media_url and media_url not in media:
             media.append(media_url)
+
     return {'urls': urls, 'hashtags': hashtags, 'mentions': mentions, 'media': media}
 
 
@@ -86,13 +87,15 @@ def normalize_archive_item(item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     tweet = item.get('tweet') if isinstance(item.get('tweet'), dict) else item
     if not isinstance(tweet, dict):
         return None
+
     created = parse_created_at(tweet.get('created_at'))
     text = tweet.get('full_text') or tweet.get('text') or ''
     entities = extract_entities(tweet)
-    fallback_urls = URL_RE.findall(text)
-    for url in fallback_urls:
+
+    for url in URL_RE.findall(text):
         if url not in entities['urls']:
             entities['urls'].append(url)
+
     return {
         'id': str(tweet.get('id_str') or tweet.get('id') or ''),
         'created_at': created.isoformat().replace('+00:00', 'Z') if created else tweet.get('created_at'),
@@ -116,7 +119,7 @@ def bucket_path(row: Dict[str, Any], output_dir: Path) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Ingest Twitter/X archive tweets.js into chunked JSONL files.')
+    parser = argparse.ArgumentParser(description='Ingest Twitter archive tweets.js into JSONL files.')
     parser.add_argument('--source', default=str(DEFAULT_SOURCE))
     parser.add_argument('--output-dir', default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument('--state-file', default=str(ARCHIVE_STATE))
@@ -124,34 +127,33 @@ def main() -> None:
 
     source = Path(args.source)
     if not source.exists():
-        raise SystemExit(f'Missing tweet archive source: {source}. Place tweets.js there or pass --source.')
+        raise SystemExit('Missing archive_sources/tweets.js')
 
     output_dir = Path(args.output_dir)
     if output_dir.exists():
         for old in output_dir.glob('**/*.jsonl'):
             old.unlink()
 
-    raw_items = parse_twitter_js(source)
-    rows = [row for row in (normalize_archive_item(item) for item in raw_items) if row]
+    rows = [r for r in (normalize_archive_item(item) for item in parse_twitter_js(source)) if r]
 
     by_path: Dict[Path, List[Dict[str, Any]]] = {}
     for row in rows:
         by_path.setdefault(bucket_path(row, output_dir), []).append(row)
 
-    written = 0
+    total = 0
     for path, chunk in sorted(by_path.items()):
-        written += append_jsonl(path, chunk)
-        print(f'Wrote {len(chunk)} tweets -> {path}')
+        count = write_jsonl(path, chunk)
+        total += count
+        print(f'Wrote {count} tweets -> {path}')
 
-    append_jsonl(output_dir / 'all_tweets.jsonl', rows)
+    write_jsonl(output_dir / 'all_tweets.jsonl', rows)
     print(f'Wrote {len(rows)} tweets -> {output_dir / "all_tweets.jsonl"}')
 
-    state_path = Path(args.state_file)
-    state = read_json(state_path, {'version': 1, 'counts': {}})
+    state = read_json(Path(args.state_file), {'version': 1, 'counts': {}})
     state['last_twitter_ingest_utc'] = utcnow_iso()
-    state.setdefault('counts', {})['tweets'] = written
-    write_json(state_path, state)
-    print(f'Twitter ingest complete: {written} tweets')
+    state.setdefault('counts', {})['tweets'] = total
+    write_json(Path(args.state_file), state)
+    print(f'Twitter ingest complete: {total} tweets')
 
 
 if __name__ == '__main__':

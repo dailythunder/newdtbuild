@@ -1,0 +1,67 @@
+{
+  "arcs": [
+    {
+      "name": "Shai Timeline",
+      "range": "2019-present",
+      "keywords": ["shai", "gilgeous-alexander", "mvp"],
+      "players": ["shai", "gilgeous-alexander"],
+      "tags": ["shai"]
+    },
+    {
+      "name": "JDub Development",
+      "range": "2019-present",
+      "keywords": ["jdub", "jalen williams", "development"],
+      "players": ["jdub", "jalen williams"],
+      "tags": ["jdub"]
+    },
+    {
+      "name": "Chet Development",
+      "range": "2019-present",
+      "keywords": ["chet", "holmgren", "development"],
+      "players": ["chet", "holmgren"],
+      "tags": ["chet"]
+    },
+    {
+      "name": "Role Player Halls of Fame",
+      "range": "2019-present",
+      "keywords": ["role player", "hall of fame", "bench"],
+      "players": [],
+      "tags": ["role players"]
+    },
+    {
+      "name": "Presti",
+      "range": "2019-present",
+      "keywords": ["presti", "sam presti", "gm"],
+      "players": ["presti"],
+      "tags": ["presti"]
+    },
+    {
+      "name": "Russ",
+      "range": "2019-present",
+      "keywords": ["russ", "westbrook"],
+      "players": ["russ"],
+      "tags": ["russ"]
+    },
+    {
+      "name": "KD",
+      "range": "2019-present",
+      "keywords": ["kd", "durant"],
+      "players": ["kd"],
+      "tags": ["kd"]
+    },
+    {
+      "name": "Coaching Regimes",
+      "range": "2019-present",
+      "keywords": ["coach", "coaching", "daigneault", "regime"],
+      "players": [],
+      "tags": ["coaching"]
+    },
+    {
+      "name": "Rivalries and Villains",
+      "range": "2019-present",
+      "keywords": ["rivalry", "villain", "enemy"],
+      "players": [],
+      "tags": ["rivalries"]
+    }
+  ]
+}

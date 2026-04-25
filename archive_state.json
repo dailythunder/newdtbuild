@@ -3,9 +3,11 @@
   "last_ghost_ingest_utc": null,
   "last_twitter_ingest_utc": null,
   "last_index_build_utc": null,
+  "last_yearbook_source_map_utc": null,
+  "last_puzzle_source_inventory_utc": null,
   "counts": {
     "ghost_posts": 0,
     "tweets": 0
   },
-  "notes": "Archive ingestion is manual-only and separate from production post automation."
+  "notes": "Private archive ingestion/indexing state."
 }
