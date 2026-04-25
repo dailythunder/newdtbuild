@@ -2,7 +2,7 @@
   "team": "OKC",
   "team_full_name": "Oklahoma City Thunder",
   "season_label": "2025-26",
-  "generated_at_utc": "2026-04-25T20:57:48.028549Z",
+  "generated_at_utc": "2026-04-25T21:48:16.579533Z",
   "registry_version": 3,
   "registry_scope": {
     "regular_season_seeded": true,
@@ -5273,8 +5273,8 @@
       "tipoff_utc": "2026-04-25T19:30:00Z",
       "status": "live",
       "result": null,
-      "thunder_score": 62,
-      "opponent_score": 55,
+      "thunder_score": 102,
+      "opponent_score": 89,
       "links": {
         "nba_game": "https://www.nba.com/game/0042500143",
         "nba_box": "https://www.nba.com/game/0042500143/box-score",
@@ -5331,7 +5331,7 @@
         "dayafter_complete": false
       },
       "timestamps": {
-        "last_verified_utc": "2026-04-25T20:57:42.624216Z"
+        "last_verified_utc": "2026-04-25T21:48:11.832203Z"
       },
       "game_number": null,
       "round_label": "Round 1",
