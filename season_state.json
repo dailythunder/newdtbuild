@@ -2,7 +2,7 @@
   "team": "OKC",
   "team_full_name": "Oklahoma City Thunder",
   "season_label": "2025-26",
-  "generated_at_utc": "2026-04-25T22:40:04.782848Z",
+  "generated_at_utc": "2026-04-25T23:22:55.020980Z",
   "registry_version": 3,
   "registry_scope": {
     "regular_season_seeded": true,
@@ -5331,7 +5331,7 @@
         "dayafter_complete": true
       },
       "timestamps": {
-        "last_verified_utc": "2026-04-25T22:40:00.300769Z"
+        "last_verified_utc": "2026-04-25T23:22:51.112417Z"
       },
       "game_number": null,
       "round_label": "Round 1",
